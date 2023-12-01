@@ -16,61 +16,62 @@ func reverseString(s string) string {
 	return reversed
 }
 
-func createNumMap() map[string]string {
-	numMapTmp := map[string]string{"one": "1", "two": "2", "three": "3", "four": "4", "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9"}
+func createNumMap() (map[string]string, map[string]string) {
+	numMapTmp := map[string]string{
+		"one":   "1",
+		"two":   "2",
+		"three": "3",
+		"four":  "4",
+		"five":  "5",
+		"six":   "6",
+		"seven": "7",
+		"eight": "8",
+		"nine":  "9",
+	}
 	numMap := map[string]string{}
+	reverseKeysMap := map[string]string{}
 	i := 1
 	for k, v := range numMapTmp {
 		numMap[k] = v
-		numMap[reverseString(k)] = v
 		numMap[fmt.Sprint(i)] = fmt.Sprint(i)
+		reverseKeysMap[k] = reverseString(k)
+		reverseKeysMap[fmt.Sprint(i)] = fmt.Sprint(i)
 		i += 1
 	}
 
-	return numMap
+	return numMap, reverseKeysMap
 }
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	numMap := createNumMap()
-
+	numMap, reverseKeysMap := createNumMap()
 	sum := 0
 	for scanner.Scan() {
 		line := scanner.Text()
+		reversedLine := reverseString(line)
+		lineLen := len(line)
 
 		first := ""
 		last := ""
-
-		for i := 0; i < len(line); i++ {
+	LineLoop:
+		for i := 0; i < lineLen; i++ {
 			for k, v := range numMap {
+				if first != "" && last != "" {
+					break LineLoop
+				}
+
 				l := len(k)
-				if i+l <= len(line) && line[i:i+l] == k {
+				if first == "" && i+l <= lineLen && line[i:i+l] == k {
 					first = v
-					break
 				}
-			}
-			if first != "" {
-				break
-			}
-		}
-
-		reversedLine := reverseString(line)
-		for i := 0; i < len(reversedLine); i++ {
-			for k, v := range numMap {
-				l := len(k)
-				if i+l <= len(reversedLine) && reversedLine[i:i+l] == k {
+				if last == "" && i+l <= lineLen && reversedLine[i:i+l] == reverseKeysMap[k] {
 					last = v
-					break
 				}
-			}
-			if last != "" {
-				break
 			}
 		}
 		v, _ := strconv.Atoi(first + last)
 		sum += v
 	}
-
 	fmt.Println(sum)
 }
