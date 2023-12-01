@@ -26,8 +26,7 @@ func sum(arr []int) int {
 }
 
 func main() {
-	file, _ := os.Open("inputs/01")
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(os.Stdin)
 
 	N := 3
 	maxElves := make([]int, N)
