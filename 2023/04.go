@@ -48,10 +48,8 @@ func main() {
 		}
 
 		// part 2
-		for i := 0; i < pileMap[cardNo]; i++ {
-			for j := 1; j <= matches; j++ {
-				pileMap[cardNo+j]++
-			}
+		for j := 1; j <= matches; j++ {
+			pileMap[cardNo+j] += pileMap[cardNo]
 		}
 
 		sum += quasiPower(2, matches)
