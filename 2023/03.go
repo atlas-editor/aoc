@@ -49,13 +49,40 @@ func isEnginePart(numStart int, numEnd int, prevLine string, currLine string, ne
 	return containsNotDigitOrDot(nbhood)
 }
 
-func gearNbrs(gearIdx int, line string) []int {
-	nbrs := []int{}
-	for _, m := range numRe.FindAllStringIndex(line, -1) {
-		v, _ := strconv.Atoi(line[m[0]:m[1]])
-		if gearIdx >= m[0]-1 && gearIdx <= m[1] {
-			nbrs = append(nbrs, v)
+func findNum(line string, idx int) int {
+	start := idx
+	for i := idx - 1; i >= 0; i-- {
+		if unicode.IsDigit(rune(line[i])) {
+			start = i
+		} else {
+			break
 		}
+	}
+	end := idx
+	for i := idx + 1; i < len(line); i++ {
+		if unicode.IsDigit(rune(line[i])) {
+			end = i
+		} else {
+			break
+		}
+	}
+
+	num, _ := strconv.Atoi(line[start : end+1])
+	return num
+}
+
+func gearNbrs(gearIdx int, line string) []int {
+	if unicode.IsDigit(rune(line[gearIdx])) {
+		return []int{findNum(line, gearIdx)}
+	}
+
+	nbrs := []int{}
+	if gearIdx > 0 && unicode.IsDigit(rune(line[gearIdx-1])) {
+		nbrs = append(nbrs, findNum(line, gearIdx-1))
+	}
+
+	if gearIdx < len(line)-1 && unicode.IsDigit(rune(line[gearIdx+1])) {
+		nbrs = append(nbrs, findNum(line, gearIdx+1))
 	}
 
 	return nbrs
