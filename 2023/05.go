@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -18,7 +19,33 @@ func minInts(nums []int) int {
 	return m
 }
 
-func minPairs(nums [][]int) int {
+func parsePropagation(info []string) []int {
+	n0, _ := strconv.Atoi(info[0])
+	n1, _ := strconv.Atoi(info[1])
+	n2, _ := strconv.Atoi(info[2])
+	return []int{n0, n1, n2}
+}
+
+func propagateNums(nums []int, propagationMap [][]int) []int {
+	res := []int{}
+OuterLoop:
+	for _, num := range nums {
+		for _, m := range propagationMap {
+			dest := m[0]
+			src := m[1]
+			len := m[2]
+			if src <= num && num < src+len {
+				res = append(res, dest+num-src)
+				continue OuterLoop
+			}
+		}
+		res = append(res, num)
+	}
+
+	return res
+}
+
+func minFirstCoordinate(nums [][]int) int {
 	m := nums[0][0]
 
 	for _, n := range nums {
@@ -31,29 +58,23 @@ func minPairs(nums [][]int) int {
 }
 
 func splitRange(n0 int, n1 int, s0 int, s1 int) [][]int {
-	if s0 <= n0 && s1 >= n1 {
-		return [][]int{[]int{n0, n1}}
-	}
+	c0 := min(max(n0, s0), n1)
+	c1 := max(min(n1, s1), n0)
+	splitPts := []int{n0, c0, c1, n1}
 
-	firstSplit := max(n0, s0)
-	secondSplit := min(n1, s1)
-
-	if firstSplit > n1 || secondSplit < n0 {
-		return [][]int{[]int{n0, n1}}
-	}
-
-	if firstSplit == n0 {
-		return [][]int{[]int{n0, secondSplit}, []int{secondSplit + 1, n1}}
-	}
-
-	if firstSplit > n0 {
-		if secondSplit >= n1 {
-			return [][]int{[]int{n0, firstSplit - 1}, []int{firstSplit, n1}}
-		} else {
-			return [][]int{[]int{n0, firstSplit - 1}, []int{firstSplit, secondSplit}, []int{secondSplit + 1, n1}}
+	splitPtsUniq := []int{}
+	for _, pt := range splitPts {
+		if !slices.Contains(splitPtsUniq, pt) {
+			splitPtsUniq = append(splitPtsUniq, pt)
 		}
 	}
-	return [][]int{}
+
+	res := [][]int{}
+	for i := 0; i < len(splitPtsUniq)-1; i++ {
+		res = append(res, []int{splitPtsUniq[i], splitPtsUniq[i+1]})
+	}
+
+	return res
 }
 
 func splitAll(ranges [][]int, s0 int, s1 int) [][]int {
@@ -70,62 +91,67 @@ func splitAll(ranges [][]int, s0 int, s1 int) [][]int {
 	return splits
 }
 
-func propagateInfo(nums [][]int, propagationMap [][]int) [][]int {
-	if len(propagationMap) == 0 {
-		return nums
-	}
+func propagateRanges(nums [][]int, propagationMap [][]int) [][]int {
 	allSplits := nums
 	for _, m := range propagationMap {
-		allSplits = splitAll(allSplits, m[1], m[1]+m[2]-1)
+		src := m[1]
+		len := m[2]
+		allSplits = splitAll(allSplits, src, src+len)
 	}
 
-	found := false
-	result := [][]int{}
-	// fmt.Println(allSplits)
+	res := [][]int{}
+OuterLoop:
 	for _, n := range allSplits {
-		found = false
+		n0 := n[0]
+		n1 := n[1]
 		for _, m := range propagationMap {
-			next := m[0]
-			s0 := m[1]
-			s1 := m[1] + m[2] - 1
-			// fmt.Println("here", n, m)
-			if s0 <= n[0] && s1 >= n[1] {
-				n0 := next + n[0] - s0
-				n1 := n0 + n[1] - n[0]
-				result = append(result, []int{n0, n1})
-				found = true
-				// fmt.Println(m)
-				// fmt.Println(result)
-				break
+			dest := m[0]
+			src := m[1]
+			len := m[2]
+			if src <= n0 && n1 <= src+len {
+				n0Dest := dest + n0 - src
+				n1Dest := n0Dest + n1 - n0
+				res = append(res, []int{n0Dest, n1Dest})
+				continue OuterLoop
 			}
-			// fmt.Println()
 		}
-
-		if !found {
-			result = append(result, []int{n[0], n[1]})
-		}
+		res = append(res, []int{n0, n1})
 	}
-
-	return result
-
-	// for _, n := range nums {
-
-	// 	// found = false
-	// 	// for _, m := range propagationMap {
-	// 	// 	if n >= m[1] && n < m[1]+m[2] {
-	// 	// 		result = append(result, m[0]+n-m[1])
-	// 	// 		found = true
-	// 	// 	}
-	// 	// }
-	// 	// if !found {
-	// 	// 	result = append(result, n)
-	// 	// }
-	// }
-
-	// return result
+	return res
 }
 
-func main() {
+func part1() {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	scanner.Scan()
+	firstLine := scanner.Text()
+	_, seedStr, _ := strings.Cut(firstLine, ":")
+	seedStrFields := strings.Fields(seedStr)
+	seeds := []int{}
+
+	for _, s := range seedStrFields {
+		v, _ := strconv.Atoi(s)
+		seeds = append(seeds, v)
+	}
+
+	propagationMap := [][]int{}
+	for scanner.Scan() {
+		line := scanner.Text()
+		numFields := strings.Fields(line)
+		if len(numFields) == 3 {
+			propagationMap = append(propagationMap, parsePropagation(numFields))
+		} else if len(propagationMap) > 0 {
+			seeds = propagateNums(seeds, propagationMap)
+			propagationMap = [][]int{}
+		}
+	}
+	if len(propagationMap) > 0 {
+		seeds = propagateNums(seeds, propagationMap)
+	}
+	fmt.Println(minInts(seeds))
+}
+
+func part2() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	scanner.Scan()
@@ -137,27 +163,25 @@ func main() {
 	for i := 0; i <= len(seedStrFields)/2; i += 2 {
 		v, _ := strconv.Atoi(seedStrFields[i])
 		r, _ := strconv.Atoi(seedStrFields[i+1])
-		seeds = append(seeds, []int{v, v + r - 1})
+		seeds = append(seeds, []int{v, v + r})
 	}
-	// fmt.Println(seeds)
 	propagationMap := [][]int{}
 	for scanner.Scan() {
 		line := scanner.Text()
-
 		numFields := strings.Fields(line)
 		if len(numFields) == 3 {
-			n0, _ := strconv.Atoi(numFields[0])
-			n1, _ := strconv.Atoi(numFields[1])
-			n2, _ := strconv.Atoi(numFields[2])
-			nums := []int{n0, n1, n2}
-			propagationMap = append(propagationMap, nums)
-		} else {
-			seeds = propagateInfo(seeds, propagationMap)
+			propagationMap = append(propagationMap, parsePropagation(numFields))
+		} else if len(propagationMap) > 0 {
+			seeds = propagateRanges(seeds, propagationMap)
 			propagationMap = [][]int{}
 		}
 	}
 	if len(propagationMap) > 0 {
-		seeds = propagateInfo(seeds, propagationMap)
+		seeds = propagateRanges(seeds, propagationMap)
 	}
-	fmt.Println(minPairs(seeds))
+	fmt.Println(minFirstCoordinate(seeds))
+}
+
+func main() {
+	part2()
 }
