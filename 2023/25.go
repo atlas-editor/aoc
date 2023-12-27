@@ -86,37 +86,30 @@ func (g graph) addOrIncreaseEdge(u, v vertex, w int) {
 	g[v][u] += w
 }
 
-func (g graph) getVertex() vertex {
+func (g graph) getVertex() (vertex, bool) {
 	for v := range g {
-		return v
+		return v, true
 	}
-	panic("empty graph")
+	return vertex(""), false
 }
 
 func (g graph) removeVertex(u vertex) {
+	for k := range g[u] {
+		delete(g[k], u)
+	}
 	delete(g, u)
-	keys := make([]vertex, 0, len(g))
-	for k := range g {
-		keys = append(keys, k)
-	}
-
-	for _, k := range keys {
-		if _, found := g[k][u]; found {
-			delete(g[k], u)
-		}
-	}
 }
 
 func (g graph) shrink(u, v vertex) {
 	newVertex := vertex(u + "^" + v)
 	g[newVertex] = map[vertex]int{}
 	for nbr, val := range g[u] {
+		if nbr == v {
+			continue
+		}
 		g.addOrIncreaseEdge(newVertex, nbr, val)
 	}
 	for nbr, val := range g[v] {
-		if nbr == newVertex {
-			continue
-		}
 		g.addOrIncreaseEdge(newVertex, nbr, val)
 	}
 	g.removeVertex(u)
@@ -169,7 +162,7 @@ func (g graph) minimumCut() cut {
 	minCutVal := -1
 	minCutX := vertex("")
 	for len(g) > 1 {
-		a := g.getVertex()
+		a, _ := g.getVertex()
 		st, cotp := g.minimumCutPhase(a)
 		s, t := st[0], st[1]
 		if minCutVal < 0 || minCutVal > cotp {
