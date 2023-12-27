@@ -127,12 +127,14 @@ func (g graph) minimumCutPhase(a vertex) ([2]vertex, int) {
 	ordering := []vertex{a}
 
 	pq := make(PriorityQueue, len(g)-1)
+	pqPosition := map[vertex]*Item{}
 	i := 0
 	for v := range g {
 		if v == a {
 			continue
 		}
 		pq[i] = &Item{v, g[a][v], i}
+		pqPosition[v] = pq[i]
 		i++
 	}
 	heap.Init(&pq)
@@ -141,11 +143,12 @@ func (g graph) minimumCutPhase(a vertex) ([2]vertex, int) {
 		item := heap.Pop(&pq).(*Item)
 		v := item.value
 		ordering = append(ordering, v)
-		for _, i := range pq {
-			if val, found := g[v][i.value]; found {
-				pq.update(i, i.priority+val)
+		for u, val := range g[v] {
+			if _, found := pqPosition[u]; found {
+				pq.update(pqPosition[u], pqPosition[u].priority+val)
 			}
 		}
+		delete(pqPosition, v)
 	}
 	s, t := ordering[len(ordering)-2], ordering[len(ordering)-1]
 	cotp := 0
@@ -166,9 +169,6 @@ func (g graph) minimumCut() cut {
 	minCutVal := -1
 	minCutX := vertex("")
 	for len(g) > 1 {
-		if minCutVal == 3 {
-			break
-		}
 		a := g.getVertex()
 		st, cotp := g.minimumCutPhase(a)
 		s, t := st[0], st[1]
@@ -205,7 +205,6 @@ func main() {
 			G.addEdge(vertex(u), vertex(v), 1)
 		}
 	}
-	// due to inefficient implementation of stoer-wagner, running time is ~15s on puzzle input
 	minCut := G.minimumCut()
 	fmt.Println(len(minCut.X) * len(minCut.Y))
 }
