@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 fn main() {
     let inp = include_str!("/Users/david/x/aoc/2021/inputs/04.in");
-    let pi: (Vec<i32>, Vec<HashMap<i32, [i32; 2]>>) = parse_input(inp);
-    // println!("{:#?}", p1(pi));
-    println!("{:#?}", p2(pi));
+    let (nums, matrices) = parse_input(inp);
+    println!("{}", p1(&nums, &matrices));
+    println!("{}", p2(&nums, &matrices));
 }
 fn parse_input(s: &str) -> (Vec<i32>, Vec<HashMap<i32, [i32; 2]>>) {
     let ss = s.split("\n\n").collect::<Vec<_>>();
@@ -13,17 +13,13 @@ fn parse_input(s: &str) -> (Vec<i32>, Vec<HashMap<i32, [i32; 2]>>) {
         .map(|n| n.parse::<i32>().unwrap())
         .collect::<Vec<_>>();
 
-    let mut matrices = Vec::new();
-    for m in &ss[1..] {
-        let matrix = parse_matrix(m);
-        matrices.push(matrix);
-    }
+    let matrices = ss[1..].iter().map(|m| parse_matrix(m)).collect::<Vec<_>>();
 
     return (nums, matrices);
 }
 
 fn parse_matrix(s: &str) -> HashMap<i32, [i32; 2]> {
-    let mut matrix: HashMap<i32, [i32; 2]> = HashMap::new();
+    let mut matrix = HashMap::new();
     for (row_idx, row) in s.lines().enumerate() {
         for (col_idx, e) in row
             .split_whitespace()
@@ -37,22 +33,20 @@ fn parse_matrix(s: &str) -> HashMap<i32, [i32; 2]> {
     return matrix;
 }
 
-fn p1(x: (Vec<i32>, Vec<HashMap<i32, [i32; 2]>>)) -> i32 {
-    let (nums, matrices) = x;
-    let mut bingo_rows = HashMap::new();
-    let mut bingo_cols = HashMap::new();
+fn p1(nums: &Vec<i32>, matrices: &Vec<HashMap<i32, [i32; 2]>>) -> i32 {
+    let mut bingo = HashMap::new();
 
     let mut winner = 0;
     let mut wi = 0;
-    'outer: for (i, n) in nums.clone().into_iter().enumerate() {
-        for (idx, m) in matrices.clone().into_iter().enumerate() {
+    'outer: for (i, n) in nums.iter().enumerate() {
+        for (idx, m) in matrices.iter().enumerate() {
             if m.contains_key(&n) {
                 let rc = m.get(&n).unwrap();
                 let (r, c) = (rc[0], rc[1]);
-                *bingo_rows.entry((idx, r)).or_insert(0) += 1;
-                *bingo_cols.entry((idx, c)).or_insert(0) += 1;
+                *bingo.entry((idx, r, 0)).or_insert(0) += 1;
+                *bingo.entry((idx, c, 1)).or_insert(0) += 1;
 
-                if bingo_rows[&(idx, r)] >= 5 || bingo_cols[&(idx, c)] >= 5 {
+                if bingo[&(idx, r, 0)] >= 5 || bingo[&(idx, c, 1)] >= 5 {
                     winner = idx;
                     wi = i;
                     break 'outer;
@@ -61,35 +55,31 @@ fn p1(x: (Vec<i32>, Vec<HashMap<i32, [i32; 2]>>)) -> i32 {
         }
     }
 
-    let mut s = matrices[winner].keys().sum::<i32>();
-    for i in nums[..wi+1].into_iter() {
-        if matrices[winner].contains_key(i) {
-            s -= i;
-        }
-    }
+    let s = matrices[winner]
+        .keys()
+        .filter(|n| !nums[..wi + 1].contains(n))
+        .sum::<i32>();
 
     return s * nums[wi];
 }
 
-fn p2(x: (Vec<i32>, Vec<HashMap<i32, [i32; 2]>>)) -> i32 {
-    let (nums, matrices) = x;
-    let mut bingo_rows = HashMap::new();
-    let mut bingo_cols = HashMap::new();
+fn p2(nums: &Vec<i32>, matrices: &Vec<HashMap<i32, [i32; 2]>>) -> i32 {
+    let mut bingo = HashMap::new();
     let mut won = HashMap::new();
 
-    let mut wi = 0;
+    let mut li = 0;
     let mut last = 0;
-    'outer: for (i, n) in nums.clone().into_iter().enumerate() {
-        for (idx, m) in matrices.clone().into_iter().enumerate() {
+    'outer: for (i, n) in nums.iter().enumerate() {
+        for (idx, m) in matrices.iter().enumerate() {
             if m.contains_key(&n) {
                 let rc = m.get(&n).unwrap();
                 let (r, c) = (rc[0], rc[1]);
-                *bingo_rows.entry((idx, r)).or_insert(0) += 1;
-                *bingo_cols.entry((idx, c)).or_insert(0) += 1;
+                *bingo.entry((idx, r, 0)).or_insert(0) += 1;
+                *bingo.entry((idx, c, 1)).or_insert(0) += 1;
 
-                if bingo_rows[&(idx, r)] >= 5 || bingo_cols[&(idx, c)] >= 5 {
+                if bingo[&(idx, r, 0)] >= 5 || bingo[&(idx, c, 1)] >= 5 {
                     won.insert(idx, true);
-                    wi = i;
+                    li = i;
                     last = idx;
                 }
 
@@ -100,12 +90,10 @@ fn p2(x: (Vec<i32>, Vec<HashMap<i32, [i32; 2]>>)) -> i32 {
         }
     }
 
-    let mut s = matrices[last].keys().sum::<i32>();
-    for i in nums[..wi+1].into_iter() {
-        if matrices[last].contains_key(i) {
-            s -= i;
-        }
-    }
+    let s = matrices[last]
+        .keys()
+        .filter(|n| !nums[..li + 1].contains(n))
+        .sum::<i32>();
 
-    return s * nums[wi];
+    return s * nums[li];
 }
