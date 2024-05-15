@@ -1,7 +1,9 @@
+use std::collections::VecDeque;
+
 use regex::Regex;
 
 fn main() {
-    let inp = include_str!("/Users/david/x/aoc/2021/inputs/06.in")
+    let inp = include_str!("/Users/david/x/aoc/2021/inputs/04.test")
         .lines()
         .next()
         .map(ints)
@@ -35,7 +37,7 @@ fn p1(nums: &Vec<usize>) -> u64 {
 }
 
 fn p2(nums: &Vec<usize>) -> u64 {
-    let mut state = [0; 9];
+    let mut state = VecDeque::from([0; 9]);
     for i in nums {
         state[*i] += 1;
     }
