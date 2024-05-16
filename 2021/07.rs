@@ -48,21 +48,20 @@ fn p1(nums: &Vec<i32>) -> i32 {
 fn p2(nums: &Vec<i32>) -> i32 {
     let nums_min = *nums.iter().min().unwrap();
     let nums_max = *nums.iter().max().unwrap();
-    let c = nums.iter().counts();
-    let mut min_ = i32::MAX;
+    let mut res = i32::MAX;
 
     for i in nums_min..nums_max + 1 {
         let mut d = 0;
-        for (val, mul) in c.iter() {
-            let t = (*val - i).abs();
-            d += ((t * (t + 1)) / 2) * (*mul as i32);
+        for n in nums {
+            let t = (n-i).abs();
+            d += (t * (t + 1)) / 2;
         }
-        if d < min_ {
-            min_ = d;
+        if d < res {
+            res = d;
         } else {
-            break;
+            break
         }
     }
 
-    min_
+    res
 }
