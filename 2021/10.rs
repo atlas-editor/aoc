@@ -54,9 +54,8 @@ fn p2(lines: &[&str]) -> u64 {
             }
             stack.push(ch);
         }
-        stack.reverse();
         let mut tr = 0;
-        for ch in stack {
+        for ch in stack.iter().rev() {
             tr *= 5;
             tr += vals[&ch];
         }
