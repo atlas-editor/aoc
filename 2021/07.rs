@@ -59,6 +59,8 @@ fn p2(nums: &Vec<i32>) -> i32 {
         }
         if d < min_ {
             min_ = d;
+        } else {
+            break;
         }
     }
 
