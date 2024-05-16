@@ -54,12 +54,7 @@ fn p2(lines: &[&str]) -> u64 {
             }
             stack.push(ch);
         }
-        let mut tr = 0;
-        for ch in stack.iter().rev() {
-            tr *= 5;
-            tr += vals[&ch];
-        }
-        res.push(tr);
+        res.push(stack.iter().rev().fold(0, |acc, ch| acc * 5 + vals[ch]));
     }
     res.sort();
     res[(res.len() - 1) / 2]
