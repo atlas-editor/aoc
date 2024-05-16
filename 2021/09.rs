@@ -1,5 +1,7 @@
+use std::collections::{HashSet, VecDeque};
+
 fn main() {
-    let inp = include_str!("tmp.test")
+    let inp = include_str!("tmp.in")
         .lines()
         .map(|x| {
             x.chars()
@@ -35,10 +37,53 @@ fn p1(map: &[Vec<i32>]) -> i32 {
             }
         }
     }
-
     res
 }
 
 fn p2(map: &[Vec<i32>]) -> usize {
-    0
+    let R = map.len();
+    let C = map[0].len();
+    let mut visited = HashSet::new();
+    let mut res = vec![];
+    for i in 0..R {
+        for j in 0..C {
+            if map[i][j] == 9 || visited.contains(&(i, j)) {
+                continue;
+            }
+
+            let mut csize = 0;
+            let mut queue = VecDeque::new();
+            queue.push_back((i, j));
+
+            while !queue.is_empty() {
+                let (r, c) = queue.pop_front().unwrap();
+
+                if visited.contains(&(r, c)) {
+                    continue;
+                }
+                visited.insert((r, c));
+                csize += 1;
+
+                for (dr, dc) in [(0, 1), (0, -1), (1, 0), (-1, 0)] {
+                    let rr = r as i32 + dr;
+                    let cc = c as i32 + dc;
+
+                    if rr >= 0
+                        && rr < R as i32
+                        && cc >= 0
+                        && cc < C as i32
+                        && !visited.contains(&(rr as usize, cc as usize))
+                        && map[rr as usize][cc as usize] != 9
+                    {
+                        queue.push_back((rr as usize, cc as usize));
+                    }
+                }
+            }
+            res.push(csize);
+        }
+    }
+
+    res.sort();
+    res.reverse();
+    res[..3].iter().product()
 }
