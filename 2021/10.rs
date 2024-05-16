@@ -1,4 +1,4 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
 
 fn main() {
     let inp = include_str!("tmp.in").lines().collect::<Vec<_>>();
@@ -12,14 +12,14 @@ fn p1(lines: &[&str]) -> i32 {
         .collect::<HashMap<_, _>>();
     let mut res = 0;
     for line in lines {
-        let mut stack = VecDeque::new();
+        let mut stack = vec![];
         for ch in line.chars() {
             if [')', ']', '}', '>'].contains(&ch) {
                 if stack.is_empty() {
                     res += vals[&ch];
                     break;
                 }
-                let pair = stack.pop_back().unwrap();
+                let pair = stack.pop().unwrap();
                 let t = [pair, ch].iter().collect::<String>();
                 if !["()", "[]", "{}", "<>"].contains(&t.as_str()) {
                     res += vals[&ch];
@@ -27,7 +27,7 @@ fn p1(lines: &[&str]) -> i32 {
                 }
                 continue;
             }
-            stack.push_back(ch);
+            stack.push(ch);
         }
     }
     res
@@ -39,27 +39,26 @@ fn p2(lines: &[&str]) -> u64 {
         .collect::<HashMap<_, _>>();
     let mut res = vec![];
     'outer: for line in lines {
-        let mut stack = VecDeque::new();
+        let mut stack = vec![];
         for ch in line.chars() {
             if [')', ']', '}', '>'].contains(&ch) {
                 if stack.is_empty() {
                     continue 'outer;
                 }
-                let pair = stack.pop_back().unwrap();
+                let pair = stack.pop().unwrap();
                 let t = [pair, ch].iter().collect::<String>();
                 if !["()", "[]", "{}", "<>"].contains(&t.as_str()) {
                     continue 'outer;
                 }
                 continue;
             }
-            stack.push_back(ch);
+            stack.push(ch);
         }
-        let sc = stack.make_contiguous();
-        sc.reverse();
+        stack.reverse();
         let mut tr = 0;
-        for ch in sc {
+        for ch in stack {
             tr *= 5;
-            tr += vals[ch];
+            tr += vals[&ch];
         }
         res.push(tr);
     }
