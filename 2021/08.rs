@@ -20,25 +20,25 @@ fn p1(entries: &[&str]) -> usize {
         .sum()
 }
 
-fn unique_by_len<'a>(codes: &'a [HashSet<&'a u8>], l: usize) -> HashSet<&'a u8> {
-    codes.iter().find(|x| x.len() == l).unwrap().clone()
-}
-
-fn filter_by_predicate<'a, F: Fn(&'a HashSet<&'a u8>) -> bool>(
-    codes: &'a [HashSet<&'a u8>],
-    pred: F,
-) -> HashSet<&'a u8> {
-    codes.iter().find(|x| pred(x)).unwrap().clone()
-}
-
 fn set(s: &str) -> HashSet<&u8> {
     s.as_bytes().iter().collect()
+}
+
+fn find_pop<T, F>(vec: &mut Vec<T>, predicate: F) -> Option<T>
+where
+    F: Fn(&T) -> bool,
+{
+    if let Some(index) = vec.iter().position(predicate) {
+        Some(vec.remove(index))
+    } else {
+        None
+    }
 }
 
 fn p2(entries: &[&str]) -> usize {
     let mut res = 0;
     for e in entries {
-        let codes = e
+        let mut codes = e
             .split('|')
             .next()
             .unwrap()
@@ -46,21 +46,16 @@ fn p2(entries: &[&str]) -> usize {
             .map(set)
             .collect::<Vec<_>>();
 
-        let one = unique_by_len(&codes, 2);
-        let four = unique_by_len(&codes, 4);
-        let seven = unique_by_len(&codes, 3);
-        let eight = unique_by_len(&codes, 7);
-
-        let nine = filter_by_predicate(&codes, |x| x.len() == 6 && four.is_subset(x));
-        let zero = filter_by_predicate(&codes, |x| x.len() == 6 && *x != nine && one.is_subset(x));
-        let six = filter_by_predicate(&codes, |x| x.len() == 6 && *x != nine && *x != zero);
-        let three = filter_by_predicate(&codes, |x| {
-            x.len() == 5 && seven.is_subset(x) && nine.is_superset(x)
-        });
-        let five = filter_by_predicate(&codes, |x| {
-            x.len() == 5 && *x != three && nine.is_superset(x)
-        });
-        let two = filter_by_predicate(&codes, |x| x.len() == 5 && *x != three && *x != five);
+        let one = find_pop(&mut codes, |x| x.len() == 2).unwrap();
+        let four = find_pop(&mut codes, |x| x.len() == 4).unwrap();
+        let seven = find_pop(&mut codes, |x| x.len() == 3).unwrap();
+        let eight = find_pop(&mut codes, |x| x.len() == 7).unwrap();
+        let nine = find_pop(&mut codes, |x| x.len() == 6 && four.is_subset(x)).unwrap();
+        let zero = find_pop(&mut codes, |x| x.len() == 6 && one.is_subset(x)).unwrap();
+        let six = find_pop(&mut codes, |x| x.len() == 6).unwrap();
+        let three = find_pop(&mut codes, |x| x.len() == 5 && seven.is_subset(x)).unwrap();
+        let five = find_pop(&mut codes, |x| x.len() == 5 && nine.is_superset(x)).unwrap();
+        let two = codes.pop().unwrap();
 
         let decoded = [zero, one, two, three, four, five, six, seven, eight, nine];
 
