@@ -26,7 +26,7 @@ fn _p1(x: &Vec<&str>) -> i32 {
             d -= units
         }
     }
-    return h * d;
+    h * d
 }
 
 fn _p2(x: &Vec<&str>) -> i32 {
@@ -44,5 +44,5 @@ fn _p2(x: &Vec<&str>) -> i32 {
             aim -= units;
         }
     }
-    return h * d;
+    h * d
 }

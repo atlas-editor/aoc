@@ -1,4 +1,3 @@
-
 use std::collections::HashMap;
 
 use itertools::Itertools;
@@ -43,7 +42,7 @@ fn apply_rules(template: String, rules: &HashMap<String, String>) -> String {
 
 fn _p1(mut template: String, rules: &HashMap<String, String>) -> i64 {
     for _ in 0..10 {
-        template = apply_rules(template, &rules);
+        template = apply_rules(template, rules);
     }
 
     let counts = template.chars().counts();

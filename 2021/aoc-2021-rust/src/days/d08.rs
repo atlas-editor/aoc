@@ -32,15 +32,9 @@ fn set(s: &str) -> HashSet<&u8> {
     s.as_bytes().iter().collect()
 }
 
-fn find_pop<T, F>(vec: &mut Vec<T>, predicate: F) -> Option<T>
-where
-    F: Fn(&T) -> bool,
+fn find_pop<T, F: Fn(&T) -> bool>(vec: &mut Vec<T>, predicate: F) -> Option<T>
 {
-    if let Some(index) = vec.iter().position(predicate) {
-        Some(vec.remove(index))
-    } else {
-        None
-    }
+    vec.iter().position(predicate).map(|index| vec.remove(index))
 }
 
 fn _p2(entries: &[&str]) -> usize {

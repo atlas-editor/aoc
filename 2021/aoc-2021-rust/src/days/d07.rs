@@ -24,7 +24,7 @@ fn parse_input() -> Vec<i32> {
     input
 }
 
-fn _p1(nums: &Vec<i32>) -> i32 {
+fn _p1(nums: &[i32]) -> i32 {
     let mut d: i32 = 0;
 
     for i in nums[1..].iter() {

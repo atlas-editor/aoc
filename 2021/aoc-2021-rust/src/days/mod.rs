@@ -1,5 +1,3 @@
-pub(crate) mod d13;
-pub(crate) mod d14;
 pub(crate) mod d01;
 pub(crate) mod d02;
 pub(crate) mod d03;
@@ -12,3 +10,5 @@ pub(crate) mod d09;
 pub(crate) mod d10;
 pub(crate) mod d11;
 pub(crate) mod d12;
+pub(crate) mod d13;
+pub(crate) mod d14;

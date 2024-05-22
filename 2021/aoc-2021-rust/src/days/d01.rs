@@ -15,7 +15,7 @@ fn parse_input() -> Vec<i32> {
         .collect::<Vec<_>>()
 }
 
-fn _p1(x: &Vec<i32>) -> i32 {
+fn _p1(x: &[i32]) -> i32 {
     let mut c = 0;
     let xsize = x.len();
     let mut idx = 1;
@@ -27,10 +27,10 @@ fn _p1(x: &Vec<i32>) -> i32 {
         idx += 1
     }
 
-    return c;
+    c
 }
 
-fn _p2(x: &Vec<i32>) -> i32 {
+fn _p2(x: &[i32]) -> i32 {
     let mut c = 0;
     let xsize = x.len();
     let mut idx = 0;
@@ -42,5 +42,5 @@ fn _p2(x: &Vec<i32>) -> i32 {
         idx += 1
     }
 
-    return c;
+    c
 }

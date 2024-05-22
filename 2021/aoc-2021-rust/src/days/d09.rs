@@ -21,6 +21,7 @@ fn parse_input() -> Vec<Vec<i32>> {
         .collect::<Vec<_>>()
 }
 
+//noinspection ALL
 fn _p1(map: &[Vec<i32>]) -> i32 {
     let R = map.len();
     let C = map[0].len();

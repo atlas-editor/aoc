@@ -42,10 +42,10 @@ fn _p1(x: &Vec<String>) -> i32 {
         }
     }
 
-    return i32::from_str_radix(&gamma, 2).unwrap() * i32::from_str_radix(&epsilon, 2).unwrap();
+    i32::from_str_radix(&gamma, 2).unwrap() * i32::from_str_radix(&epsilon, 2).unwrap()
 }
 
-fn _p2(x: &Vec<String>) -> i32 {
+fn _p2(x: &[String]) -> i32 {
     let numsize = x[0].len();
 
     let mut o2 = x.iter().collect::<Vec<_>>();
@@ -58,14 +58,14 @@ fn _p2(x: &Vec<String>) -> i32 {
         };
 
         co2 = match ones_zeros(co2.clone(), idx) {
-            (ones, zeros) if 0 < ones.len() && (ones.len() < zeros.len() || zeros.len() == 0) => {
+            (ones, zeros) if !ones.is_empty() && (ones.len() < zeros.len() || zeros.is_empty()) => {
                 ones
             }
             (_, zeros) => zeros,
         };
     }
 
-    return i32::from_str_radix(o2[0], 2).unwrap() * i32::from_str_radix(co2[0], 2).unwrap();
+    i32::from_str_radix(o2[0], 2).unwrap() * i32::from_str_radix(co2[0], 2).unwrap()
 }
 
 fn ones_zeros(x: Vec<&String>, idx: usize) -> (Vec<&String>, Vec<&String>) {
