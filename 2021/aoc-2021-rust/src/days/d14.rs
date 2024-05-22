@@ -46,8 +46,6 @@ fn _p1(mut template: String, rules: &HashMap<String, String>) -> i32 {
         template = apply_rules(template, rules);
     }
 
-    let counts = template.chars().counts();
-    let (&min_, &max_) = counts.values().minmax().into_option().unwrap();
-
+    let (&min_, &max_) = template.chars().counts().values().minmax().into_option().unwrap();
     max_ as i32 - min_ as i32
 }
