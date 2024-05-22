@@ -22,7 +22,7 @@ macro_rules! run {
     }};
 }
 
-fn main() {
+fn run_all() {
     // day1
     run!(d01, p1);
     run!(d01, p2);
@@ -78,4 +78,8 @@ fn main() {
     // day14
     run!(d14, p1);
     run!(d14, p2);
+}
+
+fn main() {
+    run_all()
 }
