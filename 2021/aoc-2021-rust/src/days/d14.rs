@@ -2,12 +2,12 @@ use itertools::Itertools;
 use std::collections::HashMap;
 use std::fmt::Write;
 
-pub fn p1(raw_input: &str) -> i64 {
+pub fn p1(raw_input: &str) -> i32 {
     let (template, rules) = parse_input(raw_input);
     _p1(template, &rules)
 }
 
-pub fn p2(raw_input: &str) -> i64 {
+pub fn p2(raw_input: &str) -> i32 {
     -1
 }
 
@@ -41,13 +41,13 @@ fn apply_rules(template: String, rules: &HashMap<String, String>) -> String {
         + &template.chars().last().unwrap().to_string()
 }
 
-fn _p1(mut template: String, rules: &HashMap<String, String>) -> i64 {
+fn _p1(mut template: String, rules: &HashMap<String, String>) -> i32 {
     for _ in 0..10 {
         template = apply_rules(template, rules);
     }
 
     let counts = template.chars().counts();
-    let mm = counts.values().minmax().into_option().unwrap();
+    let (&min_, &max_) = counts.values().minmax().into_option().unwrap();
 
-    *mm.1 as i64 - *mm.0 as i64
+    max_ as i32 - min_ as i32
 }
