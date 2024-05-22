@@ -7,7 +7,7 @@ pub fn p1(raw_input: &str) -> i32 {
     _p1(template, &rules)
 }
 
-pub fn p2(raw_input: &str) -> i32 {
+pub fn p2(_raw_input: &str) -> i32 {
     -1
 }
 
