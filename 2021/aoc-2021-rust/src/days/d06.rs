@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use regex::Regex;
+use crate::utils::ints;
 
 pub fn p1(raw_input: &str) -> u64 {
     let input = parse_input(raw_input);
@@ -14,13 +14,6 @@ pub fn p2(raw_input: &str) -> u64 {
 
 fn parse_input(raw_input: &str) -> Vec<usize> {
     raw_input.lines().next().map(ints).unwrap()
-}
-
-fn ints(input: &str) -> Vec<usize> {
-    let re = Regex::new(r"-?\d+").unwrap();
-    re.find_iter(input)
-        .map(|m| m.as_str().parse().unwrap())
-        .collect()
 }
 
 fn _p1(nums: &Vec<usize>) -> u64 {
