@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-
+use std::fmt::Write;
 use itertools::Itertools;
 
 pub fn p1() -> i64 {
@@ -27,17 +27,17 @@ fn apply_rules(template: String, rules: &HashMap<String, String>) -> String {
     template
         .chars()
         .tuple_windows::<(char, char)>()
-        .map(|x| {
-            format!(
+        .fold(String::new(), |mut acc, x| {
+            let _ = write!(
+                acc,
                 "{}{}",
                 x.0,
                 *rules
                     .get(format!("{}{}", x.0, x.1).as_str())
                     .unwrap_or(&String::new())
-            )
-        })
-        .collect::<String>()
-        + &(template.chars().last().unwrap()).to_string()
+            );
+            acc
+        }) + &template.chars().last().unwrap().to_string()
 }
 
 fn _p1(mut template: String, rules: &HashMap<String, String>) -> i64 {
