@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use std::collections::{HashSet, VecDeque};
 
 pub fn p1() -> i32 {

@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 pub fn p1() -> i32 {
     let input = parse_input();
     p(&input, false)
