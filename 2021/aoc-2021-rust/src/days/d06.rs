@@ -2,22 +2,18 @@ use std::collections::VecDeque;
 
 use regex::Regex;
 
-pub fn p1() -> u64 {
-    let input = parse_input();
+pub fn p1(raw_input: &str) -> u64 {
+    let input = parse_input(raw_input);
     _p1(&input)
 }
 
-pub fn p2() -> u64 {
-    let input = parse_input();
+pub fn p2(raw_input: &str) -> u64 {
+    let input = parse_input(raw_input);
     _p2(&input)
 }
 
-fn parse_input() -> Vec<usize> {
-    include_str!("../inputs/06.in")
-        .lines()
-        .next()
-        .map(ints)
-        .unwrap()
+fn parse_input(raw_input: &str) -> Vec<usize> {
+    raw_input.lines().next().map(ints).unwrap()
 }
 
 fn ints(input: &str) -> Vec<usize> {

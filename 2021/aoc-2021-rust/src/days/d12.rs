@@ -2,18 +2,18 @@ use std::collections::{HashMap, HashSet};
 
 use itertools::Itertools;
 
-pub fn p1() -> i32 {
-    let input = parse_input();
+pub fn p1(raw_input: &str) -> i32 {
+    let input = parse_input(raw_input);
     p(&input, false)
 }
 
-pub fn p2() -> i32 {
-    let input = parse_input();
+pub fn p2(raw_input: &str) -> i32 {
+    let input = parse_input(raw_input);
     p(&input, true)
 }
 
-fn parse_input<'a>() -> Vec<(&'a str, &'a str)> {
-    include_str!("../inputs/12.in")
+fn parse_input(raw_input: &str) -> Vec<(&str, &str)> {
+    raw_input
         .lines()
         .map(|x| x.split_once('-').unwrap())
         .collect()

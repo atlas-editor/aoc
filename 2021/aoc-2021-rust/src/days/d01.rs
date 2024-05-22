@@ -1,18 +1,18 @@
-pub fn p1() -> i32 {
-    let input = parse_input();
+pub fn p1(raw_input: &str) -> i32 {
+    let input = parse_input(raw_input);
     _p1(&input)
 }
 
-pub fn p2() -> i32 {
-    let input = parse_input();
+pub fn p2(raw_input: &str) -> i32 {
+    let input = parse_input(raw_input);
     _p2(&input)
 }
 
-fn parse_input() -> Vec<i32> {
-    include_str!("../inputs/01.in")
+fn parse_input(raw_input: &str) -> Vec<i32> {
+    raw_input
         .lines()
         .map(|line| line.parse::<i32>().unwrap())
-        .collect::<Vec<_>>()
+        .collect()
 }
 
 fn _p1(x: &[i32]) -> i32 {

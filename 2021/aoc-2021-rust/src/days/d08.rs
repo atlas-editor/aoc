@@ -1,17 +1,17 @@
 use std::collections::HashSet;
 
-pub fn p1() -> usize {
-    let input = parse_input();
+pub fn p1(raw_input: &str) -> usize {
+    let input = parse_input(raw_input);
     _p1(&input)
 }
 
-pub fn p2() -> usize {
-    let input = parse_input();
+pub fn p2(raw_input: &str) -> usize {
+    let input = parse_input(raw_input);
     _p2(&input)
 }
 
-fn parse_input<'a>() -> Vec<&'a str> {
-    include_str!("../inputs/08.in").lines().collect::<Vec<_>>()
+fn parse_input(raw_input: &str) -> Vec<&str> {
+    raw_input.lines().collect()
 }
 
 fn _p1(entries: &[&str]) -> usize {

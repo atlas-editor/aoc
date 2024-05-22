@@ -4,18 +4,18 @@ use std::collections::{HashMap, HashSet};
 
 use itertools::Itertools;
 
-pub fn p1() -> i32 {
-    let (nums, matrices) = parse_input();
+pub fn p1(raw_input: &str) -> i32 {
+    let (nums, matrices) = parse_input(raw_input);
     p(&nums, &matrices, false)
 }
 
-pub fn p2() -> i32 {
-    let (nums, matrices) = parse_input();
+pub fn p2(raw_input: &str) -> i32 {
+    let (nums, matrices) = parse_input(raw_input);
     p(&nums, &matrices, true)
 }
 
-fn parse_input() -> (Vec<i32>, Vec<HashMap<i32, (i32, i32)>>) {
-    let input = include_str!("../inputs/04.in").split("\n\n").collect_vec();
+fn parse_input(raw_input: &str) -> (Vec<i32>, Vec<HashMap<i32, (i32, i32)>>) {
+    let input = raw_input.split("\n\n").collect_vec();
     let nums = input[0]
         .split(',')
         .map(|n| n.parse::<i32>().unwrap())

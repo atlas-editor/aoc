@@ -4,22 +4,18 @@ use itertools::Itertools;
 
 use crate::utils::ints;
 
-pub fn p1() -> i32 {
-    let input = parse_input();
+pub fn p1(raw_input: &str) -> i32 {
+    let input = parse_input(raw_input);
     _p1(&input)
 }
 
-pub fn p2() -> i32 {
-    let input = parse_input();
+pub fn p2(raw_input: &str) -> i32 {
+    let input = parse_input(raw_input);
     _p2(&input)
 }
 
-fn parse_input() -> Vec<i32> {
-    let mut input = include_str!("../inputs/07.in")
-        .lines()
-        .next()
-        .map(ints)
-        .unwrap();
+fn parse_input(raw_input: &str) -> Vec<i32> {
+    let mut input = raw_input.lines().next().map(ints).unwrap();
     input.sort();
     input
 }

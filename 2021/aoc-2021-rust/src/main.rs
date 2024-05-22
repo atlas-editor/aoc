@@ -1,18 +1,24 @@
+use std::fs;
+
 mod days;
 mod utils;
 
 macro_rules! run {
     ($day:ident, $part:ident) => {{
+        let input_path = format!("inputs/{}.in", &stringify!($day).to_string()[1..]);
+        let raw_input = fs::read_to_string(input_path).unwrap();
+
         let start = std::time::SystemTime::now();
-        let result = days::$day::$part();
+        let result = days::$day::$part(&raw_input);
         let duration = start.elapsed().unwrap();
+
         println!(
             "{} {} took {:.3} ms",
             stringify!($day),
             stringify!($part),
             duration.as_secs_f64() * 1000.0
         );
-        println!("{}\n", result);
+        println!("{}", result);
     }};
 }
 

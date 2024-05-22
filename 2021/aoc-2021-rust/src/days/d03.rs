@@ -1,20 +1,17 @@
 use std::collections::HashMap;
 
-pub fn p1() -> i32 {
-    let input = parse_input();
+pub fn p1(raw_input: &str) -> i32 {
+    let input = parse_input(raw_input);
     _p1(&input)
 }
 
-pub fn p2() -> i32 {
-    let input = parse_input();
+pub fn p2(raw_input: &str) -> i32 {
+    let input = parse_input(raw_input);
     _p2(&input)
 }
 
-fn parse_input() -> Vec<String> {
-    include_str!("../inputs/03.in")
-        .lines()
-        .map(|l| l.to_string())
-        .collect::<Vec<_>>()
+fn parse_input(raw_input: &str) -> Vec<String> {
+    raw_input.lines().map(|l| l.to_string()).collect::<Vec<_>>()
 }
 
 fn _p1(x: &Vec<String>) -> i32 {

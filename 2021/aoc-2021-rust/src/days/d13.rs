@@ -3,18 +3,18 @@ use std::collections::HashSet;
 use itertools::Itertools;
 use parse_display::FromStr;
 
-pub fn p1() -> usize {
-    let (nums, folds) = parse_input();
+pub fn p1(raw_input: &str) -> usize {
+    let (nums, folds) = parse_input(raw_input);
     _p1(&nums, &folds[0])
 }
 
-pub fn p2() -> String {
-    let (nums, folds) = parse_input();
+pub fn p2(raw_input: &str) -> String {
+    let (nums, folds) = parse_input(raw_input);
     _p2(nums, &folds)
 }
 
-fn parse_input() -> (Vec<(i32, i32)>, Vec<Fold>) {
-    let input = include_str!("../inputs/13.in").split_once("\n\n").unwrap();
+fn parse_input(raw_input: &str) -> (Vec<(i32, i32)>, Vec<Fold>) {
+    let input = raw_input.split_once("\n\n").unwrap();
     let nums = input
         .0
         .lines()

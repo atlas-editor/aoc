@@ -1,17 +1,17 @@
 #![allow(non_snake_case)]
 
-pub fn p1() -> i32 {
-    let input = parse_input();
+pub fn p1(raw_input: &str) -> i32 {
+    let input = parse_input(raw_input);
     p(&input, false)
 }
 
-pub fn p2() -> i32 {
-    let input = parse_input();
+pub fn p2(raw_input: &str) -> i32 {
+    let input = parse_input(raw_input);
     p(&input, true)
 }
 
-fn parse_input() -> Vec<Vec<u8>> {
-    include_str!("../inputs/11.in")
+fn parse_input(raw_input: &str) -> Vec<Vec<u8>> {
+    raw_input
         .lines()
         .map(|x| x.chars().map(|y| y.to_digit(10).unwrap() as u8).collect())
         .collect()

@@ -2,18 +2,18 @@
 
 use std::collections::{HashSet, VecDeque};
 
-pub fn p1() -> i32 {
-    let input = parse_input();
+pub fn p1(raw_input: &str) -> i32 {
+    let input = parse_input(raw_input);
     _p1(&input)
 }
 
-pub fn p2() -> usize {
-    let input = parse_input();
+pub fn p2(raw_input: &str) -> usize {
+    let input = parse_input(raw_input);
     _p2(&input)
 }
 
-fn parse_input() -> Vec<Vec<i32>> {
-    include_str!("../inputs/09.in")
+fn parse_input(raw_input: &str) -> Vec<Vec<i32>> {
+    raw_input
         .lines()
         .map(|x| {
             x.chars()

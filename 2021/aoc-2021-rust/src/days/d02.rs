@@ -1,15 +1,15 @@
-pub fn p1() -> i32 {
-    let input = parse_input();
+pub fn p1(raw_input: &str) -> i32 {
+    let input = parse_input(raw_input);
     _p1(&input)
 }
 
-pub fn p2() -> i32 {
-    let input = parse_input();
+pub fn p2(raw_input: &str) -> i32 {
+    let input = parse_input(raw_input);
     _p2(&input)
 }
 
-fn parse_input<'a>() -> Vec<&'a str> {
-    include_str!("../inputs/02.in").lines().collect::<Vec<_>>()
+fn parse_input(raw_input: &str) -> Vec<&str> {
+    raw_input.lines().collect()
 }
 
 fn _p1(x: &Vec<&str>) -> i32 {
