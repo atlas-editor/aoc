@@ -51,3 +51,18 @@ fn _p2(nums: &Vec<usize>) -> u64 {
     }
     state.iter().sum()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        assert_eq!(p1(raw_input()), 5934);
+        assert_eq!(p2(raw_input()), 26984457539);
+    }
+
+    fn raw_input<'a>() -> &'a str {
+        "3,4,3,1,2"
+    }
+}

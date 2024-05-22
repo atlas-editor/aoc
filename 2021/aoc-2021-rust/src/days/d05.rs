@@ -58,11 +58,11 @@ mod tests {
 
     #[test]
     fn it_works() {
-        assert_eq!(p1(data()), 5);
-        assert_eq!(p2(data()), 12);
+        assert_eq!(p1(raw_input()), 5);
+        assert_eq!(p2(raw_input()), 12);
     }
 
-    fn data<'a>() -> &'a str {
+    fn raw_input<'a>() -> &'a str {
         "0,9 -> 5,9
 8,0 -> 0,8
 9,4 -> 3,4
