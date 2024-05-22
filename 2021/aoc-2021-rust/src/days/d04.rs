@@ -2,16 +2,24 @@ use std::collections::{HashMap, HashSet};
 
 use itertools::Itertools;
 
-pub fn run() {
-    let input = include_str!("inputs/04.in").split("\n\n").collect_vec();
+pub fn p1() -> i32 {
+    let (nums, matrices) = parse_input();
+    p(&nums, &matrices, false)
+}
+
+pub fn p2() -> i32 {
+    let (nums, matrices) = parse_input();
+    p(&nums, &matrices, true)
+}
+
+fn parse_input() -> (Vec<i32>, Vec<HashMap<i32, (i32, i32)>>) {
+    let input = include_str!("../inputs/04.in").split("\n\n").collect_vec();
     let nums = input[0]
         .split(',')
         .map(|n| n.parse::<i32>().unwrap())
         .collect_vec();
     let matrices = input[1..].iter().map(|m| parse_matrix(m)).collect_vec();
-
-    println!("{}", p(&nums, &matrices, false));
-    println!("{}", p(&nums, &matrices, true));
+    (nums, matrices)
 }
 
 fn parse_matrix(s: &str) -> HashMap<i32, (i32, i32)> {

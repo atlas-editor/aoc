@@ -3,23 +3,23 @@ use std::{
     collections::HashMap,
 };
 
-use regex::Regex;
+use crate::utils::ints;
 
-pub fn run() {
-    let inp = include_str!("inputs/05.in")
-        .lines()
-        .map(ints)
-        .collect::<Vec<_>>();
-
-    println!("{}", p(&inp, false));
-    println!("{}", p(&inp, true));
+pub fn p1() -> usize {
+    let input = parse_input();
+    p(&input, false)
 }
 
-fn ints(input: &str) -> Vec<i32> {
-    let re = Regex::new(r"-?\d+").unwrap();
-    re.find_iter(input)
-        .map(|m| m.as_str().parse().unwrap())
-        .collect()
+pub fn p2() -> usize {
+    let input = parse_input();
+    p(&input, true)
+}
+
+fn parse_input() -> Vec<Vec<i32>> {
+    include_str!("../inputs/05.in")
+        .lines()
+        .map(ints)
+        .collect::<Vec<_>>()
 }
 
 fn range(x1: i32, y1: i32, x2: i32, y2: i32, diag: bool) -> Vec<[i32; 2]> {
