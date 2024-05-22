@@ -41,15 +41,14 @@ fn range(x1: i32, y1: i32, x2: i32, y2: i32, diag: bool) -> Vec<[i32; 2]> {
     vec![]
 }
 
-fn p(nums: &[Vec<i32>], p2: bool) -> usize {
+fn p(segments: &[Vec<i32>], p2: bool) -> usize {
     let mut m = HashMap::new();
-    for p in nums {
-        let (x1, y1, x2, y2) = (p[0], p[1], p[2], p[3]);
-        for q in range(x1, y1, x2, y2, p2) {
+    for s in segments {
+        for q in range(s[0], s[1], s[2], s[3], p2) {
             *m.entry(q).or_insert(0) += 1;
         }
     }
-    m.values().filter(|v| **v >= 2).collect_vec().len()
+    m.values().filter(|v| **v >= 2).count()
 }
 
 #[cfg(test)]
