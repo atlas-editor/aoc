@@ -5,8 +5,8 @@ use std::{
 
 use regex::Regex;
 
-fn main() {
-    let inp = include_str!("/Users/david/x/aoc/2021/inputs/05.in")
+pub fn run() {
+    let inp = include_str!("inputs/05.in")
         .lines()
         .map(ints)
         .collect::<Vec<_>>();
@@ -45,11 +45,10 @@ fn range(x1: i32, y1: i32, x2: i32, y2: i32, diag: bool) -> Vec<[i32; 2]> {
         }
         return (0..diff + 1).map(|i| [x1 - i, y1 - i]).collect();
     }
-
     vec![]
 }
 
-fn p(nums: &Vec<Vec<i32>>, p2: bool) -> i32 {
+fn p(nums: &[Vec<i32>], p2: bool) -> usize {
     let mut m = HashMap::new();
     for p in nums {
         let (x1, y1, x2, y2) = (p[0], p[1], p[2], p[3]);
@@ -57,6 +56,5 @@ fn p(nums: &Vec<Vec<i32>>, p2: bool) -> i32 {
             *m.entry(q).or_insert(0) += 1;
         }
     }
-    let x = m.values().filter(|v| **v >= 2).collect::<Vec<_>>().len();
-    x as i32
+    m.values().filter(|v| **v >= 2).collect::<Vec<_>>().len()
 }
