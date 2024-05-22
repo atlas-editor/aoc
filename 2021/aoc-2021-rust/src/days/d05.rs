@@ -48,7 +48,7 @@ fn p(segments: &[Vec<i32>], p2: bool) -> usize {
             *m.entry(q).or_insert(0) += 1;
         }
     }
-    m.values().filter(|v| **v >= 2).count()
+    m.values().filter(|&&v| v >= 2).count()
 }
 
 #[cfg(test)]
