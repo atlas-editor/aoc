@@ -1,4 +1,4 @@
-Benchmark on Apple M1 Pro.
+Benchmark on Apple M1 Pro (times exclude input reading and result printing).
 
 ```
 day       part 1    part 2
