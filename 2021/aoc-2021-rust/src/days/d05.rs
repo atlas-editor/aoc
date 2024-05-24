@@ -1,5 +1,4 @@
 use itertools::Itertools;
-use std::collections::HashMap;
 
 use crate::utils::ints;
 
@@ -13,11 +12,11 @@ pub fn p2(raw_input: &str) -> usize {
     p(&input, true)
 }
 
-fn parse_input(raw_input: &str) -> Vec<Vec<i32>> {
+fn parse_input(raw_input: &str) -> Vec<Vec<usize>> {
     raw_input.lines().map(ints).collect()
 }
 
-fn range(x1: i32, y1: i32, x2: i32, y2: i32, diag: bool) -> Vec<[i32; 2]> {
+fn range(x1: usize, y1: usize, x2: usize, y2: usize, diag: bool) -> Vec<[usize; 2]> {
     if x1 == x2 {
         let (&lb, &ub) = [y1, y2].iter().minmax().into_option().unwrap();
         return (lb..ub + 1).map(|i| [x1, i]).collect();
@@ -41,14 +40,18 @@ fn range(x1: i32, y1: i32, x2: i32, y2: i32, diag: bool) -> Vec<[i32; 2]> {
     vec![]
 }
 
-fn p(segments: &[Vec<i32>], p2: bool) -> usize {
-    let mut m = HashMap::new();
+fn p(segments: &[Vec<usize>], p2: bool) -> usize {
+    let mut plane = [[0u8; 1000]; 1000];
+    let mut points = 0;
     for s in segments {
         for q in range(s[0], s[1], s[2], s[3], p2) {
-            *m.entry(q).or_insert(0) += 1;
+            plane[q[1]][q[0]] += 1;
+            if plane[q[1]][q[0]] == 2 {
+                points += 1;
+            }
         }
     }
-    m.values().filter(|&&v| v >= 2).count()
+    points
 }
 
 #[cfg(test)]
