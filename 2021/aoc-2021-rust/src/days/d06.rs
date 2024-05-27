@@ -1,5 +1,5 @@
-use std::collections::VecDeque;
 use itertools::Itertools;
+use std::collections::VecDeque;
 
 pub fn p1(raw_input: &str) -> u64 {
     let input = parse_input(raw_input);
@@ -12,7 +12,13 @@ pub fn p2(raw_input: &str) -> u64 {
 }
 
 fn parse_input(raw_input: &str) -> Vec<usize> {
-    raw_input.lines().next().unwrap().split(',').map(|x| x.parse().unwrap()).collect_vec()
+    raw_input
+        .lines()
+        .next()
+        .unwrap()
+        .split(',')
+        .map(|x| x.parse().unwrap())
+        .collect_vec()
 }
 
 fn p(nums: &Vec<usize>, loops: u16) -> u64 {
