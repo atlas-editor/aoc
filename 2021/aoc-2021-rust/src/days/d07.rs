@@ -1,8 +1,7 @@
 use std::collections::BTreeMap;
 
+use crate::days::utils::ints;
 use itertools::Itertools;
-
-use crate::utils::ints;
 
 pub fn p1(raw_input: &str) -> i32 {
     let input = parse_input(raw_input);
