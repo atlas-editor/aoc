@@ -1,13 +1,47 @@
-use regex::Regex;
-use std::fmt::Debug;
-use std::str::FromStr;
+const W_DAY: usize = 10;
+const W_PART: usize = 10;
 
-pub fn ints<T: FromStr>(input: &str) -> Vec<T>
-where
-    <T as FromStr>::Err: Debug,
-{
-    let re = Regex::new(r"-?\d+").unwrap();
-    re.find_iter(input)
-        .map(|m| m.as_str().parse().unwrap())
-        .collect()
+fn mean(numbers: &[f64]) -> f64 {
+    numbers.iter().sum::<f64>() / numbers.len() as f64
+}
+
+fn measure_run<S: ?Sized, T, F: Fn(&S) -> T>(f: &F, input: &S) -> f64 {
+    let start = std::time::SystemTime::now();
+    _ = f(input);
+    let duration = start.elapsed().unwrap();
+    duration.as_secs_f64()
+}
+
+pub fn benchmark_run<S: ?Sized, T, F: Fn(&S) -> T>(f: F, input: &S) -> f64 {
+    let first_run = measure_run(&f, input);
+    let n = (1. / first_run) as i32;
+    if n <= 1 || first_run < 0.0001 {
+        return first_run;
+    }
+
+    let mut run_times = vec![];
+    for _ in 0..n {
+        run_times.push(measure_run(&f, input));
+    }
+    mean(&run_times)
+}
+
+pub fn print_header() {
+    print!("{:<w$}", "day", w = W_DAY);
+    print!("{:<w$}", "part 1", w = W_PART);
+    print!("{:<w$}", "part 2", w = W_PART);
+    println!();
+    println!("{:-<w$}", "", w = W_DAY + W_PART * 2);
+}
+
+pub fn print_day(day: u8, p1: f64, p2: f64) {
+    print!("{:<w$}", format!("day {:02}", day), w = W_DAY);
+
+    let mut p1_dur = format!("{:.3}", p1 * 1000.).to_string();
+    p1_dur = format!("{} ms", &p1_dur[..5]);
+    print!("{:<w$}", p1_dur, w = W_PART);
+
+    let mut p2_dur = format!("{:.3}", p2 * 1000.).to_string();
+    p2_dur = format!("{} ms", &p2_dur[..5]);
+    println!("{:<w$}", p2_dur, w = W_PART);
 }
