@@ -15,10 +15,9 @@ fn measure_run<S: ?Sized, T, F: Fn(&S) -> T>(f: &F, input: &S) -> f64 {
 pub fn benchmark_run<S: ?Sized, T, F: Fn(&S) -> T>(f: F, input: &S) -> f64 {
     let first_run = measure_run(&f, input);
     let n = (1. / first_run) as i32;
-    if n <= 1 || first_run < 0.0001 {
+    if n <= 1 || first_run < 0.000001 {
         return first_run;
     }
-
     let mut run_times = vec![];
     for _ in 0..n {
         run_times.push(measure_run(&f, input));
