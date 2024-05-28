@@ -62,9 +62,10 @@ fn decode(codes_raw: &str, output: &str) -> u32 {
     output
         .split_ascii_whitespace()
         .map(|x| {
+            let set_x = set(x);
             [zero, one, two, three, four, five, six, seven, eight, nine]
                 .iter()
-                .position(|y| *y == set(x))
+                .position(|y| *y == set_x)
                 .unwrap()
                 .to_string()
         })
