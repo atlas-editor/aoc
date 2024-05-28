@@ -27,10 +27,9 @@ fn _p1(entries: &[&str]) -> usize {
 }
 
 fn set(digit: &str) -> u8 {
-    let letters = "abcdefgh";
     digit
         .chars()
-        .map(|c| letters.find(c).unwrap())
+        .map(|c| "abcdefgh".find(c).unwrap())
         .fold(0, |result, index| result | (1 << index))
 }
 
@@ -60,12 +59,10 @@ fn decode(codes_raw: &str, output: &str) -> u32 {
     let five = find_pop(&mut codes, |x| x.count_ones() == 5 && is_subset(*x, nine));
     let two = codes.pop().unwrap();
 
-    let decoded = [zero, one, two, three, four, five, six, seven, eight, nine];
-
     output
         .split_ascii_whitespace()
         .map(|x| {
-            decoded
+            [zero, one, two, three, four, five, six, seven, eight, nine]
                 .iter()
                 .position(|y| *y == set(x))
                 .unwrap()
