@@ -1,4 +1,3 @@
-use itertools::Itertools;
 use std::collections::HashMap;
 
 pub fn p1(raw_input: &str) -> usize {
