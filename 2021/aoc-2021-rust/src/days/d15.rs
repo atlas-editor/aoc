@@ -1,4 +1,3 @@
-use std::cmp::Ordering;
 use itertools::Itertools;
 use std::collections::BinaryHeap;
 
@@ -35,38 +34,19 @@ fn wrap(x: usize) -> u8 {
 
 fn extend_graph(g: &Vec<Vec<u8>>) -> Vec<Vec<u8>> {
     let (r_size, c_size) = (g.len(), g[0].len());
-    let mut gg = vec![vec![0; 5*c_size]; 5*r_size];
+    let mut gg = vec![vec![0; 5 * c_size]; 5 * r_size];
 
     for i in 0..r_size {
         for j in 0..5 {
             for k in 0..c_size {
                 for l in 0..5 {
-                    gg[i+(j*r_size)][k+(l*c_size)] = wrap(g[i][k] as usize + j + l)
+                    gg[i + (j * r_size)][k + (l * c_size)] = wrap(g[i][k] as usize + j + l)
                 }
             }
         }
     }
 
     gg
-}
-
-#[derive(Eq, PartialEq)]
-struct State {
-    dist: i32,
-    pos: (i32, i32),
-}
-
-impl Ord for State {
-    fn cmp(&self, other: &Self) -> Ordering {
-        other.dist.cmp(&self.dist)
-            .then_with(|| self.pos.cmp(&other.pos))
-    }
-}
-
-impl PartialOrd for State {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
 }
 
 fn nbrs(r: usize, c: usize, u: (i32, i32)) -> Vec<(i32, i32)> {
@@ -83,12 +63,12 @@ fn dijkstra(g: &Vec<Vec<u8>>, start: (i32, i32), dest: (i32, i32)) -> i32 {
     let mut q = BinaryHeap::new();
 
     dist[start.0 as usize][start.1 as usize] = 0;
-    q.push(State{ dist: 0, pos: start});
-    while let Some(State { dist: d, pos: u }) = q.pop() {
+    q.push((0, start));
+    while let Some((d, u)) = q.pop() {
         if u == dest {
-            return d;
+            return -d;
         }
-        if d > dist[u.0 as usize][u.1 as usize] {
+        if -d > dist[u.0 as usize][u.1 as usize] {
             continue;
         }
 
@@ -96,7 +76,7 @@ fn dijkstra(g: &Vec<Vec<u8>>, start: (i32, i32), dest: (i32, i32)) -> i32 {
             let alt = dist[u.0 as usize][u.1 as usize] + g[v.0 as usize][v.1 as usize] as i32;
             if alt < dist[v.0 as usize][v.1 as usize] {
                 dist[v.0 as usize][v.1 as usize] = alt;
-                q.push(State{ dist: alt, pos: v});
+                q.push((-alt, v));
             }
         }
     }
