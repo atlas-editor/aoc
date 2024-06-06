@@ -43,8 +43,8 @@ fn add_vectors(vectors: &[&Vec<usize>]) -> Vec<usize> {
 
 fn dp(rules: &HashMap<(usize, usize), usize>, d: usize) -> Vec<Vec<Vec<usize>>> {
     let zero = vec![0; 10];
-    let mut table = vec![vec![vec![zero.clone(); 10]; 10]; d+1];
-    for i in 1..d+1 {
+    let mut table = vec![vec![vec![zero.clone(); 10]; 10]; d + 1];
+    for i in 1..d + 1 {
         for j0 in 0..10 {
             for j1 in 0..10 {
                 if !rules.contains_key(&(j0, j1)) {
