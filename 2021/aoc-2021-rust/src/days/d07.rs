@@ -1,69 +1,51 @@
-use std::collections::BTreeMap;
-
-use crate::days::utils::ints;
 use itertools::Itertools;
 
 pub fn p1(raw_input: &str) -> i32 {
     let input = parse_input(raw_input);
-    _p1(&input)
+    find_min(|t| t, &input)
 }
 
 pub fn p2(raw_input: &str) -> i32 {
     let input = parse_input(raw_input);
-    _p2(&input)
+    find_min(|t| (t * (t + 1)) / 2, &input)
 }
 
 fn parse_input(raw_input: &str) -> Vec<i32> {
-    let mut input = raw_input.lines().next().map(ints).unwrap();
-    input.sort();
-    input
+    raw_input
+        .lines()
+        .next()
+        .unwrap()
+        .split(',')
+        .map(|x| x.parse::<i32>().unwrap())
+        .collect_vec()
 }
 
-fn _p1(nums: &[i32]) -> i32 {
-    let mut d: i32 = 0;
-
-    for i in nums[1..].iter() {
-        d += i - nums[0];
-    }
-
-    let c = nums.iter().counts().into_iter().collect::<BTreeMap<_, _>>();
-    let uniqs = c.clone().into_keys().collect::<Vec<_>>();
-    let nums_len = nums.len() as i32;
-    let mut prev = 0;
-    let mut min_ = d;
-
-    for (i, el) in c.into_iter().enumerate() {
-        prev += el.1 as i32;
-        if i + 1 == uniqs.len() {
-            break;
-        }
-        for _ in uniqs[i] + 1..uniqs[i + 1] + 1 {
-            d = d + prev - (nums_len - prev);
-            if d < min_ {
-                min_ = d;
-            }
-        }
-    }
-    min_
-}
-
-fn _p2(nums: &Vec<i32>) -> i32 {
-    let nums_min = *nums.iter().min().unwrap();
-    let nums_max = *nums.iter().max().unwrap();
-    let mut res = i32::MAX;
-
-    for i in nums_min..nums_max + 1 {
-        let mut d = 0;
-        for n in nums {
-            let t = (n - i).abs();
-            d += (t * (t + 1)) / 2;
-        }
-        if d < res {
-            res = d;
+fn find_min<T: Fn(i32) -> i32>(f: T, nums: &[i32]) -> i32 {
+    let (a_ref, b_ref) = nums.iter().minmax().into_option().unwrap();
+    let (mut a, mut b) = (*a_ref, *b_ref);
+    let g = |i: i32| nums.iter().map(|n| f((n - i).abs())).sum::<i32>();
+    while a != b {
+        let mid = (a + b) / 2;
+        if g((a + mid) / 2) <= g((mid + b) / 2) {
+            b = mid;
         } else {
-            break;
+            a = mid;
         }
     }
+    g(a)
+}
 
-    res
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        assert_eq!(p1(raw_input()), 37);
+        assert_eq!(p2(raw_input()), 168);
+    }
+
+    fn raw_input<'a>() -> &'a str {
+        "16,1,2,0,4,2,7,1,2,14"
+    }
 }
