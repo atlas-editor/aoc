@@ -1,6 +1,4 @@
-#![allow(non_snake_case)]
-
-use std::collections::{HashSet, VecDeque};
+use itertools::Itertools;
 
 pub fn p1(raw_input: &str) -> i32 {
     let input = parse_input(raw_input);
@@ -17,84 +15,92 @@ fn parse_input(raw_input: &str) -> Vec<Vec<i32>> {
         .lines()
         .map(|x| {
             x.chars()
-                .map(|y| y.to_string().parse::<i32>().unwrap())
-                .collect::<Vec<_>>()
+                .map(|y| y.to_digit(10).unwrap() as i32)
+                .collect_vec()
         })
-        .collect::<Vec<_>>()
+        .collect()
 }
 
-//noinspection ALL
-fn _p1(map: &[Vec<i32>]) -> i32 {
-    let R = map.len();
-    let C = map[0].len();
-    let mut res = 0;
-    for i in 0..R {
-        for j in 0..C {
-            let mut nbrs = vec![];
-            if i > 0 {
-                nbrs.push(map[i - 1][j]);
-            }
-            if i < R - 1 {
-                nbrs.push(map[i + 1][j]);
-            }
-            if j > 0 {
-                nbrs.push(map[i][j - 1]);
-            }
-            if j < C - 1 {
-                nbrs.push(map[i][j + 1]);
-            }
-            if map[i][j] < *nbrs.iter().min().unwrap() {
-                res += map[i][j] + 1;
-            }
+fn neighbors(r_size: usize, c_size: usize, r: usize, c: usize) -> Vec<(usize, usize)> {
+    let mut nbrs = vec![];
+    for (dr, dc) in [(0, 1), (0, -1), (1, 0), (-1, 0)] {
+        let rr = r as i32 + dr;
+        let cc = c as i32 + dc;
+
+        if rr >= 0 && rr < r_size as i32 && cc >= 0 && cc < c_size as i32 {
+            nbrs.push((rr as usize, cc as usize))
         }
     }
-    res
+
+    nbrs
+}
+
+fn _p1(map: &[Vec<i32>]) -> i32 {
+    let r_size = map.len();
+    let c_size = map[0].len();
+    let mut risk_level = 0;
+    for r in 0..r_size {
+        'outer: for c in 0..c_size {
+            let risk = map[r][c];
+            for (rr, cc) in neighbors(r_size, c_size, r, c) {
+                if map[rr][cc] < risk {
+                    continue 'outer;
+                }
+            }
+            risk_level += risk + 1;
+        }
+    }
+    risk_level
 }
 
 fn _p2(map: &[Vec<i32>]) -> usize {
-    let R = map.len();
-    let C = map[0].len();
-    let mut visited = HashSet::new();
-    let mut res = vec![];
-    for i in 0..R {
-        for j in 0..C {
-            if map[i][j] == 9 || visited.contains(&(i, j)) {
+    let r_size = map.len();
+    let c_size = map[0].len();
+    let mut visited = vec![vec![false; c_size]; r_size];
+    let mut basins = vec![];
+    for i in 0..r_size {
+        for j in 0..c_size {
+            if map[i][j] == 9 || visited[i][j] {
                 continue;
             }
 
-            let mut csize = 0;
-            let mut queue = VecDeque::new();
-            queue.push_back((i, j));
+            let mut component_size = 0;
+            let mut queue = vec![];
+            queue.push((i, j));
+            visited[i][j] = true;
 
-            while !queue.is_empty() {
-                let (r, c) = queue.pop_front().unwrap();
+            while let Some((r, c)) = queue.pop() {
+                component_size += 1;
 
-                if visited.contains(&(r, c)) {
-                    continue;
-                }
-                visited.insert((r, c));
-                csize += 1;
-
-                for (dr, dc) in [(0, 1), (0, -1), (1, 0), (-1, 0)] {
-                    let rr = r as i32 + dr;
-                    let cc = c as i32 + dc;
-
-                    if rr >= 0
-                        && rr < R as i32
-                        && cc >= 0
-                        && cc < C as i32
-                        && !visited.contains(&(rr as usize, cc as usize))
-                        && map[rr as usize][cc as usize] != 9
-                    {
-                        queue.push_back((rr as usize, cc as usize));
+                for (rr, cc) in neighbors(r_size, c_size, r, c) {
+                    if !visited[rr][cc] && map[rr][cc] != 9 {
+                        queue.push((rr, cc));
+                        visited[rr][cc] = true;
                     }
                 }
             }
-            res.push(csize);
+            basins.push(component_size);
         }
     }
 
-    res.sort();
-    res.reverse();
-    res[..3].iter().product()
+    basins.iter().sorted().rev().take(3).product()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        assert_eq!(p1(raw_input()), 15);
+        assert_eq!(p2(raw_input()), 1134);
+    }
+
+    fn raw_input<'a>() -> &'a str {
+        "2199943210
+3987894921
+9856789892
+8767896789
+9899965678"
+    }
 }
