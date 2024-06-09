@@ -44,3 +44,32 @@ pub fn print_day(day: u8, p1: f64, p2: f64) {
     p2_dur = format!("{} ms", &p2_dur[..5]);
     println!("{:<w$}", p2_dur, w = W_PART);
 }
+
+#[macro_export]
+macro_rules! benchmark_all {
+    ($($day:ident),*) => {{
+        print_header();
+        $(
+        let input_path = format!("inputs/{}.in", &stringify!($day).to_string()[1..]);
+        let raw_input = fs::read_to_string(input_path).unwrap();
+
+        let p1_duration = benchmark_run(days::$day::p1, &raw_input);
+        let p2_duration = benchmark_run(days::$day::p2, &raw_input);
+
+        print_day(stringify!($day).to_string()[1..].parse().unwrap(), p1_duration, p2_duration);
+        )*
+    }};
+}
+
+#[macro_export]
+macro_rules! run {
+    ($day:ident) => {{
+        let input_path = format!("inputs/{}.in", &stringify!($day).to_string()[1..]);
+        let raw_input = fs::read_to_string(input_path).unwrap();
+
+        let p1_result = days::$day::p1(&raw_input);
+        let p2_result = days::$day::p2(&raw_input);
+
+        println!("part 1 = {}\npart 2 = {}", p1_result, p2_result);
+    }};
+}
