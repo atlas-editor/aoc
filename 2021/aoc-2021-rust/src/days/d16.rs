@@ -1,7 +1,3 @@
-use itertools::Itertools;
-use std::any::Any;
-use std::usize;
-
 pub fn p1(raw_input: &str) -> i32 {
     let code = parse_input(raw_input);
     let packet = parse_packets(&code);
@@ -33,7 +29,6 @@ struct Header {
 #[derive(Debug, Clone)]
 struct Packet {
     header: Header,
-    length_type_id: Option<u8>,
     literal_values: Vec<String>,
     sub_packets: Vec<Box<Packet>>,
 }
@@ -68,7 +63,6 @@ fn parse_literal_values(code: &str) -> (Vec<String>, usize) {
             i += 5;
         } else {
             res.push(&code[i + 1..i + 5]);
-            i += 5;
             break;
         }
     }
@@ -96,7 +90,6 @@ fn _parse_packets(code: &str, sub_packets: Option<usize>) -> (Vec<Box<Packet>>, 
             let (literal_values, end) = parse_literal_values(&code[i..]);
             packets.push(Box::new(Packet {
                 header,
-                length_type_id: None,
                 literal_values,
                 sub_packets: vec![],
             }));
@@ -108,7 +101,6 @@ fn _parse_packets(code: &str, sub_packets: Option<usize>) -> (Vec<Box<Packet>>, 
                 let (sub_packets, _) = _parse_packets(&code[i + 22..i + 22 + total_length], None);
                 packets.push(Box::new(Packet {
                     header,
-                    length_type_id: Some(length_type_id),
                     literal_values: vec![],
                     sub_packets,
                 }));
@@ -118,7 +110,6 @@ fn _parse_packets(code: &str, sub_packets: Option<usize>) -> (Vec<Box<Packet>>, 
                 let (sub_packets, end) = _parse_packets(&code[i + 18..], Some(no_sub_packets));
                 packets.push(Box::new(Packet {
                     header,
-                    length_type_id: Some(length_type_id),
                     literal_values: vec![],
                     sub_packets,
                 }));
@@ -145,10 +136,10 @@ fn version_sum(packet: Box<Packet>) -> i32 {
 
 fn value(packet: &Box<Packet>) -> u64 {
     match packet.header.type_id {
-        0 => packet.sub_packets.iter().map(|x| value(x)).sum(),
-        1 => packet.sub_packets.iter().map(|x| value(x)).product(),
-        2 => packet.sub_packets.iter().map(|x| value(x)).min().unwrap(),
-        3 => packet.sub_packets.iter().map(|x| value(x)).max().unwrap(),
+        0 => packet.sub_packets.iter().map(value).sum(),
+        1 => packet.sub_packets.iter().map(value).product(),
+        2 => packet.sub_packets.iter().map(value).min().unwrap(),
+        3 => packet.sub_packets.iter().map(value).max().unwrap(),
         4 => packet.literal_value().unwrap(),
         5 => (value(&packet.sub_packets[0]) > value(&packet.sub_packets[1])) as u64,
         6 => (value(&packet.sub_packets[0]) < value(&packet.sub_packets[1])) as u64,

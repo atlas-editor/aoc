@@ -33,7 +33,7 @@ fn simulate(mut vx: i32, mut vy: i32, target: (i32, i32, i32, i32)) -> bool {
 }
 
 fn _p2(nums: (i32, i32, i32, i32)) -> i32 {
-    let (x0, x1, y0, y1) = nums;
+    let (_, x1, y0, _) = nums;
     let mut res = 0;
     for vx in 0..x1 + 1 {
         for vy in y0..-y0 + 1 {
