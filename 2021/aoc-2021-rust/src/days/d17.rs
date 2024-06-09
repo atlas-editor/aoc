@@ -3,7 +3,7 @@ use crate::days::utils::ints;
 pub fn p1(raw_input: &str) -> i32 {
     // works when there is an integer `k` s.t. `x0 <= (k*(k+1))/2 <= x1` AND y0 is negative
     let v = -parse_input(raw_input).2 - 1;
-    (v*(v+1))/2
+    (v * (v + 1)) / 2
 }
 
 pub fn p2(raw_input: &str) -> i32 {
@@ -21,7 +21,7 @@ fn simulate(mut vx: i32, mut vy: i32, target: (i32, i32, i32, i32)) -> bool {
     let mut curr = (0, 0);
     while curr.0 <= x1 && curr.1 >= y0 {
         if curr.0 >= x0 && curr.0 <= x1 && curr.1 >= y0 && curr.1 <= y1 {
-            return true
+            return true;
         }
         curr = (curr.0 + vx, curr.1 + vy);
         if vx > 0 {
@@ -35,8 +35,8 @@ fn simulate(mut vx: i32, mut vy: i32, target: (i32, i32, i32, i32)) -> bool {
 fn _p2(nums: (i32, i32, i32, i32)) -> i32 {
     let (x0, x1, y0, y1) = nums;
     let mut res = 0;
-    for vx in 0..x1+1 {
-        for vy in y0..-y0+1 {
+    for vx in 0..x1 + 1 {
+        for vy in y0..-y0 + 1 {
             if simulate(vx, vy, nums) {
                 res += 1
             }
