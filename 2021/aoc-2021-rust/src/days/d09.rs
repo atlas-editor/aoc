@@ -65,16 +65,16 @@ fn _p2(map: &[Vec<i32>]) -> usize {
             }
 
             let mut component_size = 0;
-            let mut queue = vec![];
-            queue.push((i, j));
+            let mut stack = vec![];
+            stack.push((i, j));
             visited[i][j] = true;
 
-            while let Some((r, c)) = queue.pop() {
+            while let Some((r, c)) = stack.pop() {
                 component_size += 1;
 
                 for (rr, cc) in neighbors(r_size, c_size, r, c) {
                     if !visited[rr][cc] && map[rr][cc] != 9 {
-                        queue.push((rr, cc));
+                        stack.push((rr, cc));
                         visited[rr][cc] = true;
                     }
                 }
