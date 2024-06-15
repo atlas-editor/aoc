@@ -1,5 +1,5 @@
 const W_DAY: usize = 10;
-const W_PART: usize = 12;
+const W_PART: usize = 10;
 
 fn mean(numbers: &[f64]) -> f64 {
     numbers.iter().sum::<f64>() / numbers.len() as f64
@@ -36,13 +36,21 @@ pub fn print_header() {
 pub fn print_day(day: u8, p1: f64, p2: f64) {
     print!("{:<w$}", format!("day {:02}", day), w = W_DAY);
 
-    let mut p1_dur = format!("{:.5}", p1 * 1000.).to_string();
-    p1_dur = format!("{} ms", &p1_dur[..7]);
-    print!("{:<w$}", p1_dur, w = W_PART);
+    if p1 > 99. {
+        println!("{:<w$}", " +inf ms", w = W_PART);
+    } else {
+        let mut p1_dur = format!("{:.3}", p1 * 1000.).to_string();
+        p1_dur = format!("{} ms", &p1_dur[..5]);
+        print!("{:<w$}", p1_dur, w = W_PART);
+    }
 
-    let mut p2_dur = format!("{:.5}", p2 * 1000.).to_string();
-    p2_dur = format!("{} ms", &p2_dur[..7]);
-    println!("{:<w$}", p2_dur, w = W_PART);
+    if p2 > 99. {
+        println!("{:<w$}", " +inf ms", w = W_PART);
+    } else {
+        let mut p2_dur = format!("{:.3}", p2 * 1000.).to_string();
+        p2_dur = format!("{} ms", &p2_dur[..5]);
+        println!("{:<w$}", p2_dur, w = W_PART);
+    }
 }
 
 #[macro_export]
