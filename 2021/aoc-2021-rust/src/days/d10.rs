@@ -23,19 +23,19 @@ fn _p1(lines: &[&str]) -> i32 {
         let mut stack = vec![];
         for ch in line.chars() {
             if [')', ']', '}', '>'].contains(&ch) {
-                if stack.is_empty() {
+                if let Some(pair) = stack.pop() {
+                    let t = format!("{pair}{ch}");
+                    if !["()", "[]", "{}", "<>"].contains(&t.as_str()) {
+                        res += vals[&ch];
+                        break;
+                    }
+                } else {
                     res += vals[&ch];
                     break;
                 }
-                let pair = stack.pop().unwrap();
-                let t = [pair, ch].iter().collect::<String>();
-                if !["()", "[]", "{}", "<>"].contains(&t.as_str()) {
-                    res += vals[&ch];
-                    break;
-                }
-                continue;
+            } else {
+                stack.push(ch);
             }
-            stack.push(ch);
         }
     }
     res
@@ -50,20 +50,44 @@ fn _p2(lines: &[&str]) -> u64 {
         let mut stack = vec![];
         for ch in line.chars() {
             if [')', ']', '}', '>'].contains(&ch) {
-                if stack.is_empty() {
+                if let Some(pair) = stack.pop() {
+                    let t = format!("{pair}{ch}");
+                    if !["()", "[]", "{}", "<>"].contains(&t.as_str()) {
+                        continue 'outer;
+                    }
+                } else {
                     continue 'outer;
                 }
-                let pair = stack.pop().unwrap();
-                let t = [pair, ch].iter().collect::<String>();
-                if !["()", "[]", "{}", "<>"].contains(&t.as_str()) {
-                    continue 'outer;
-                }
-                continue;
+            } else {
+                stack.push(ch);
             }
-            stack.push(ch);
         }
         res.push(stack.iter().rev().fold(0, |acc, ch| acc * 5 + vals[ch]));
     }
     res.sort();
     res[(res.len() - 1) / 2]
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        assert_eq!(p1(raw_input()), 26397);
+        assert_eq!(p2(raw_input()), 288957);
+    }
+
+    fn raw_input<'a>() -> &'a str {
+        "[({(<(())[]>[[{[]{<()<>>
+[(()[<>])]({[<{<<[]>>(
+{([(<{}[<>[]}>{[]{[(<()>
+(((({<>}<{<{<>}{[]{[]{}
+[[<[([]))<([[{}[[()]]]
+[{[{({}]{}}([{[{{{}}([]
+{<[[]]>}<{[{[{[]{()[[[]
+[<(<(<(<{}))><([]([]()
+<{([([[(<>()){}]>(<<{{
+<{([{{}}[<[[[<>{}]]]>[]]"
+    }
 }
