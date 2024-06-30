@@ -20,10 +20,14 @@ enum LineType {
     Corrupted(char),
 }
 
-impl LineType {
-    fn from_str(line: &str) -> Self {
+trait Typer<T> {
+    fn r#type(&self) -> T;
+}
+
+impl Typer<LineType> for &str {
+    fn r#type(&self) -> LineType {
         let mut stack = vec![];
-        for ch in line.chars() {
+        for ch in self.chars() {
             if [')', ']', '}', '>'].contains(&ch) {
                 if let Some(pair) = stack.pop() {
                     let t = format!("{pair}{ch}");
@@ -47,7 +51,7 @@ fn _p1(lines: &[&str]) -> u32 {
         .collect::<HashMap<_, _>>();
     lines
         .iter()
-        .map(|line| match LineType::from_str(line) {
+        .map(|line| match line.r#type() {
             LineType::Incomplete(_) => 0,
             LineType::Corrupted(ch) => vals[&ch],
         })
@@ -60,7 +64,7 @@ fn _p2(lines: &[&str]) -> u64 {
         .collect::<HashMap<_, _>>();
     let scores = lines
         .iter()
-        .filter_map(|line| match LineType::from_str(line) {
+        .filter_map(|line| match line.r#type() {
             LineType::Incomplete(stack) => {
                 Some(stack.iter().rev().fold(0, |acc, ch| acc * 5 + vals[ch]))
             }
