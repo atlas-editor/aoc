@@ -1,5 +1,4 @@
 use itertools::Itertools;
-use maplit::hashmap;
 
 pub fn p1(raw_input: &str) -> u32 {
     let input = parse_input(raw_input);
@@ -26,9 +25,13 @@ trait Typer<T> {
 
 impl Typer<LineType> for &str {
     fn r#type(&self) -> LineType {
+        let bracket_match = |b0, b1| match b0 {
+            b'(' => b1 == b0 + 1,
+            _ => b1 == b0 + 2,
+        };
         let mut stack = vec![];
         for b in self.as_bytes() {
-            if [b')', b']', b'}', b'>'].contains(&b) {
+            if [b')', b']', b'}', b'>'].contains(b) {
                 if let Some(pair) = stack.pop() {
                     if !bracket_match(pair, *b) {
                         return LineType::Corrupted(*b);
@@ -44,36 +47,40 @@ impl Typer<LineType> for &str {
     }
 }
 
-fn bracket_match(b0: u8, b1: u8) -> bool {
-    match b0 {
-        b'(' => b1 == b')',
-        b'[' => b1 == b']',
-        b'{' => b1 == b'}',
-        b'<' => b1 == b'>',
-        _ => {
-            panic!("unexpected char")
-        }
-    }
-}
-
 fn _p1(lines: &[&str]) -> u32 {
-    let vals = hashmap! {b')' => 3, b']' => 57, b'}' => 1197, b'>' => 25137};
+    let points = |b| match b {
+        b')' => 3,
+        b']' => 57,
+        b'}' => 1197,
+        b'>' => 25137,
+        _ => {
+            panic!("unexpected token")
+        }
+    };
     lines
         .iter()
         .map(|line| match line.r#type() {
             LineType::Incomplete(_) => 0,
-            LineType::Corrupted(ch) => vals[&ch],
+            LineType::Corrupted(b) => points(b),
         })
         .sum()
 }
 
 fn _p2(lines: &[&str]) -> u64 {
-    let vals = hashmap! {b'(' => 1, b'[' => 2, b'{' => 3, b'<' => 4};
+    let points = |b| match b {
+        b'(' => 1,
+        b'[' => 2,
+        b'{' => 3,
+        b'<' => 4,
+        _ => {
+            panic!("unexpected token")
+        }
+    };
     let scores = lines
         .iter()
         .filter_map(|line| match line.r#type() {
             LineType::Incomplete(stack) => {
-                Some(stack.iter().rev().fold(0, |acc, ch| acc * 5 + vals[ch]))
+                Some(stack.iter().rev().fold(0, |acc, b| acc * 5 + points(*b)))
             }
             LineType::Corrupted(_) => None,
         })
