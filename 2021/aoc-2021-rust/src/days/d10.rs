@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use std::collections::HashMap;
+use maplit::hashmap;
 
 pub fn p1(raw_input: &str) -> u32 {
     let input = parse_input(raw_input);
@@ -46,9 +46,7 @@ impl Typer<LineType> for &str {
 }
 
 fn _p1(lines: &[&str]) -> u32 {
-    let vals = [(')', 3), (']', 57), ('}', 1197), ('>', 25137)]
-        .into_iter()
-        .collect::<HashMap<_, _>>();
+    let vals = hashmap! {')' => 3,']' => 57,'}' => 1197,'>' => 25137};
     lines
         .iter()
         .map(|line| match line.r#type() {
@@ -59,9 +57,7 @@ fn _p1(lines: &[&str]) -> u32 {
 }
 
 fn _p2(lines: &[&str]) -> u64 {
-    let vals = [('(', 1), ('[', 2), ('{', 3), ('<', 4)]
-        .into_iter()
-        .collect::<HashMap<_, _>>();
+    let vals = hashmap! {'(' => 1,'[' => 2,'{' => 3,'<' => 4};
     let scores = lines
         .iter()
         .filter_map(|line| match line.r#type() {
