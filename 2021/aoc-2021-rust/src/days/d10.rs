@@ -16,8 +16,8 @@ fn parse_input(raw_input: &str) -> Vec<&str> {
 }
 
 enum LineType {
-    Incomplete(Vec<char>),
-    Corrupted(char),
+    Incomplete(Vec<u8>),
+    Corrupted(u8),
 }
 
 trait Typer<T> {
@@ -27,26 +27,37 @@ trait Typer<T> {
 impl Typer<LineType> for &str {
     fn r#type(&self) -> LineType {
         let mut stack = vec![];
-        for ch in self.chars() {
-            if [')', ']', '}', '>'].contains(&ch) {
+        for b in self.as_bytes() {
+            if [b')', b']', b'}', b'>'].contains(&b) {
                 if let Some(pair) = stack.pop() {
-                    let t = format!("{pair}{ch}");
-                    if !["()", "[]", "{}", "<>"].contains(&t.as_str()) {
-                        return LineType::Corrupted(ch);
+                    if !bracket_match(pair, *b) {
+                        return LineType::Corrupted(*b);
                     }
                 } else {
-                    return LineType::Corrupted(ch);
+                    return LineType::Corrupted(*b);
                 }
             } else {
-                stack.push(ch);
+                stack.push(*b);
             }
         }
         LineType::Incomplete(stack)
     }
 }
 
+fn bracket_match(b0: u8, b1: u8) -> bool {
+    match b0 {
+        b'(' => b1 == b')',
+        b'[' => b1 == b']',
+        b'{' => b1 == b'}',
+        b'<' => b1 == b'>',
+        _ => {
+            panic!("unexpected char")
+        }
+    }
+}
+
 fn _p1(lines: &[&str]) -> u32 {
-    let vals = hashmap! {')' => 3,']' => 57,'}' => 1197,'>' => 25137};
+    let vals = hashmap! {b')' => 3, b']' => 57, b'}' => 1197, b'>' => 25137};
     lines
         .iter()
         .map(|line| match line.r#type() {
@@ -57,7 +68,7 @@ fn _p1(lines: &[&str]) -> u32 {
 }
 
 fn _p2(lines: &[&str]) -> u64 {
-    let vals = hashmap! {'(' => 1,'[' => 2,'{' => 3,'<' => 4};
+    let vals = hashmap! {b'(' => 1, b'[' => 2, b'{' => 3, b'<' => 4};
     let scores = lines
         .iter()
         .filter_map(|line| match line.r#type() {
