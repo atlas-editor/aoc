@@ -43,15 +43,11 @@ fn p(input: &[(&str, &str)], p2: bool) -> i32 {
     let mut path = vec!["start"];
     let mut stack = vec![g["start"].clone()];
 
-    while !stack.is_empty() {
-        let nbrs = stack.last().unwrap().clone();
+    while let Some(nbrs) = stack.pop() {
         if nbrs.is_empty() {
-            stack.pop();
             path.pop();
             continue;
         }
-
-        stack.pop();
         stack.push(nbrs[1..].to_vec());
 
         let curr = nbrs[0];
