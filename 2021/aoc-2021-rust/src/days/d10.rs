@@ -53,9 +53,7 @@ fn _p1(lines: &[&str]) -> u32 {
         b']' => 57,
         b'}' => 1197,
         b'>' => 25137,
-        _ => {
-            panic!("unexpected token")
-        }
+        _ => panic!("unexpected token"),
     };
     lines
         .iter()
@@ -72,9 +70,7 @@ fn _p2(lines: &[&str]) -> u64 {
         b'[' => 2,
         b'{' => 3,
         b'<' => 4,
-        _ => {
-            panic!("unexpected token")
-        }
+        _ => panic!("unexpected token"),
     };
     let scores = lines
         .iter()
