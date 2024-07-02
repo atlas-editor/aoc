@@ -1,5 +1,4 @@
 use crate::days::utils::*;
-use crate::matrix;
 
 pub fn p1(raw_input: &[u8]) -> i32 {
     let mut input = parse_input(raw_input);
@@ -11,11 +10,17 @@ pub fn p2(raw_input: &[u8]) -> i32 {
     p(&mut input, true)
 }
 
-fn parse_input(raw_input: &[u8]) -> Matrix<u8> {
+fn parse_input(raw_input: &[u8]) -> Matrix<i16> {
     Matrix::digits(raw_input)
 }
 
-fn neighbors(r_size: usize, c_size: usize, r: usize, c: usize) -> Vec<(usize, usize)> {
+fn neighbors(
+    r_size: usize,
+    c_size: usize,
+    r: usize,
+    c: usize,
+    m: &Matrix<i16>,
+) -> Vec<(usize, usize)> {
     let mut nbrs = vec![];
     for (dr, dc) in [
         (1, 0),
@@ -30,7 +35,12 @@ fn neighbors(r_size: usize, c_size: usize, r: usize, c: usize) -> Vec<(usize, us
         let rr = r as i8 + dr;
         let cc = c as i8 + dc;
 
-        if rr >= 0 && rr < r_size as i8 && cc >= 0 && cc < c_size as i8 {
+        if rr >= 0
+            && rr < r_size as i8
+            && cc >= 0
+            && cc < c_size as i8
+            && m[rr as usize][cc as usize] != -1
+        {
             nbrs.push((rr as usize, cc as usize))
         }
     }
@@ -38,11 +48,11 @@ fn neighbors(r_size: usize, c_size: usize, r: usize, c: usize) -> Vec<(usize, us
     nbrs
 }
 
-fn p(energy: &mut Matrix<u8>, p2: bool) -> i32 {
+fn p(energy: &mut Matrix<i16>, p2: bool) -> i32 {
     let (r_size, c_size) = energy.shape;
-    let mut flashed = matrix![false; r_size, c_size];
     let mut flashes = 0;
     for i in 0.. {
+        let mut step_flashes = vec![];
         if i == 100 && !p2 {
             return flashes;
         }
@@ -57,35 +67,30 @@ fn p(energy: &mut Matrix<u8>, p2: bool) -> i32 {
         }
 
         for nine in nines {
-            if flashed[nine.0][nine.1] {
+            if energy[nine.0][nine.1] == -1 {
                 continue;
             }
             let mut stack = vec![nine];
-            flashed[nine.0][nine.1] = true;
+            energy[nine.0][nine.1] = -1;
+            step_flashes.push(nine);
             while let Some((r, c)) = stack.pop() {
-                for (rr, cc) in neighbors(r_size, c_size, r, c) {
+                for (rr, cc) in neighbors(r_size, c_size, r, c, &energy) {
                     energy[rr][cc] += 1;
-                    if energy[rr][cc] > 9 && !flashed[rr][cc] {
+                    if energy[rr][cc] > 9 {
                         stack.push((rr, cc));
-                        flashed[rr][cc] = true;
+                        energy[rr][cc] = -1;
+                        step_flashes.push((rr, cc));
                     }
                 }
             }
         }
-        let mut t = 0;
-        for r in 0..r_size {
-            for c in 0..c_size {
-                if flashed[r][c] {
-                    energy[r][c] = 0;
-                    t += 1;
-                }
-                flashed[r][c] = false;
-            }
-        }
-        if t == r_size * c_size && p2 {
+        if step_flashes.len() == r_size * c_size && p2 {
             return i + 1;
         }
-        flashes += t as i32;
+        for &(r, c) in &step_flashes {
+            energy[r][c] = 0;
+        }
+        flashes += step_flashes.len() as i32;
     }
     unreachable!()
 }
