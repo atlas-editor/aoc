@@ -2,13 +2,13 @@ use crate::days::utils::*;
 use crate::matrix;
 
 pub fn p1(raw_input: &[u8]) -> i32 {
-    let input = parse_input(raw_input);
-    p(input, false)
+    let mut input = parse_input(raw_input);
+    p(&mut input, false)
 }
 
 pub fn p2(raw_input: &[u8]) -> i32 {
-    let input = parse_input(raw_input);
-    p(input, true)
+    let mut input = parse_input(raw_input);
+    p(&mut input, true)
 }
 
 fn parse_input(raw_input: &[u8]) -> Matrix<u8> {
@@ -38,13 +38,13 @@ fn neighbors(r_size: usize, c_size: usize, r: usize, c: usize) -> Vec<(usize, us
     nbrs
 }
 
-fn p(mut energy: Matrix<u8>, p2: bool) -> i32 {
+fn p(energy: &mut Matrix<u8>, p2: bool) -> i32 {
     let (r_size, c_size) = energy.shape;
     let mut flashed = matrix![false; r_size, c_size];
-    let mut res = 0;
+    let mut flashes = 0;
     for i in 0.. {
         if i == 100 && !p2 {
-            return res;
+            return flashes;
         }
         let mut nines = vec![];
         for r in 0..r_size {
@@ -85,7 +85,7 @@ fn p(mut energy: Matrix<u8>, p2: bool) -> i32 {
         if t == r_size * c_size && p2 {
             return i + 1;
         }
-        res += t as i32;
+        flashes += t as i32;
     }
     unreachable!()
 }
