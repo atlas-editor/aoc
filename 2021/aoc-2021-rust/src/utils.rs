@@ -59,7 +59,7 @@ macro_rules! benchmark_all {
         utils::print_header();
         $(
         let input_path = format!("inputs/{}.in", &stringify!($day).to_string()[1..]);
-        let raw_input = std::fs::read_to_string(input_path).unwrap();
+        let raw_input = std::fs::read(input_path).unwrap();
 
         let p1_duration = utils::benchmark_run(days::$day::p1, &raw_input);
         let p2_duration = utils::benchmark_run(days::$day::p2, &raw_input);
@@ -73,7 +73,7 @@ macro_rules! benchmark_all {
 macro_rules! run {
     ($day:ident) => {{
         let input_path = format!("inputs/{}.in", &stringify!($day).to_string()[1..]);
-        let raw_input = std::fs::read_to_string(input_path).unwrap();
+        let raw_input = std::fs::read(input_path).unwrap();
 
         let p1_result = days::$day::p1(&raw_input);
         let p2_result = days::$day::p2(&raw_input);
