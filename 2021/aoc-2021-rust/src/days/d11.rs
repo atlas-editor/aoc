@@ -1,5 +1,4 @@
 use crate::days::utils::*;
-use std::cmp::max;
 
 pub fn p1(raw_input: &[u8]) -> i16 {
     let mut input = parse_input(raw_input);
@@ -52,6 +51,7 @@ fn neighbors(
 
 fn p(energy: &mut Matrix<i16>, p2: bool) -> i16 {
     let (r_size, c_size) = energy.shape;
+    let area = (r_size * c_size) as i16;
     let mut flashes = 0;
     for i in 0.. {
         let mut step_flashes = 0;
@@ -88,10 +88,10 @@ fn p(energy: &mut Matrix<i16>, p2: bool) -> i16 {
                 }
             }
         }
-        if step_flashes == r_size * c_size && p2 {
+        if step_flashes == area && p2 {
             return i + 1;
         }
-        flashes += step_flashes as i16;
+        flashes += step_flashes;
     }
     unreachable!()
 }
