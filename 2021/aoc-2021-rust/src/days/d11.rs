@@ -20,7 +20,7 @@ fn neighbors(
     r: usize,
     c: usize,
     m: &Matrix<i16>,
-    i: i16,
+    flashed: i16,
 ) -> Vec<(usize, usize)> {
     let mut nbrs = vec![];
     for (dr, dc) in [
@@ -40,7 +40,7 @@ fn neighbors(
             && rr < r_size as i8
             && cc >= 0
             && cc < c_size as i8
-            && m[rr as usize][cc as usize] != -i - 9
+            && m[rr as usize][cc as usize] != flashed
         {
             nbrs.push((rr as usize, cc as usize))
         }
@@ -53,41 +53,36 @@ fn p(energy: &mut Matrix<i16>, p2: bool) -> i16 {
     let (r_size, c_size) = energy.shape;
     let area = (r_size * c_size) as i16;
     let mut flashes = 0;
+    let mut step_flashes = 0;
+    let mut stack = vec![];
     for i in 0.. {
-        let mut step_flashes = 0;
+        step_flashes = 0;
+        let flashed = -i - 1;
+        let threshold = flashed + 9;
         if i == 100 && !p2 {
             return flashes;
         }
 
         for r in 0..r_size {
             for c in 0..c_size {
-                match energy[r][c] {
-                    e if e == -i - 9 => {
-                        continue;
-                    }
-                    e if e < 0 => {
-                        energy[r][c] += i + 9;
-                    }
-                    _ => {
-                        energy[r][c] += 1;
-                    }
+                if energy[r][c] <= threshold {
+                    continue;
                 }
-                if energy[r][c] > 9 {
-                    let mut stack = vec![(r, c)];
-                    energy[r][c] = -i - 9;
-                    while let Some((r, c)) = stack.pop() {
-                        step_flashes += 1;
-                        for (rr, cc) in neighbors(r_size, c_size, r, c, &energy, i) {
-                            energy[rr][cc] += 1;
-                            if energy[rr][cc] > 9 {
-                                stack.push((rr, cc));
-                                energy[rr][cc] = -i - 9;
-                            }
+                stack.push((r, c));
+                energy[r][c] = flashed;
+                while let Some((r, c)) = stack.pop() {
+                    step_flashes += 1;
+                    for (rr, cc) in neighbors(r_size, c_size, r, c, &energy, flashed) {
+                        energy[rr][cc] += 1;
+                        if energy[rr][cc] > threshold {
+                            stack.push((rr, cc));
+                            energy[rr][cc] = flashed;
                         }
                     }
                 }
             }
         }
+
         if step_flashes == area && p2 {
             return i + 1;
         }
