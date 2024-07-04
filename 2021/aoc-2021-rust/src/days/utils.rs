@@ -76,6 +76,20 @@ impl<T> IndexMut<usize> for Matrix<T> {
     }
 }
 
+impl<T> Index<(usize, usize)> for Matrix<T> {
+    type Output = T;
+
+    fn index(&self, index: (usize, usize)) -> &Self::Output {
+        &self.data[index.0 * self.shape.1 + index.1]
+    }
+}
+
+impl<T> IndexMut<(usize, usize)> for Matrix<T> {
+    fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
+        &mut self.data[index.0 * self.shape.1 + index.1]
+    }
+}
+
 #[macro_export]
 macro_rules! matrix {
     [$val:expr; $R:expr, $C:expr] => {

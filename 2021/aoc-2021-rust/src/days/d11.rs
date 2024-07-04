@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use crate::days::utils::*;
 
 pub fn p1(raw_input: &[u8]) -> i16 {
@@ -63,21 +64,19 @@ fn p(energy: &mut Matrix<i16>, p2: bool) -> i16 {
             return flashes;
         }
 
-        for r in 0..r_size {
-            for c in 0..c_size {
-                if energy[r][c] <= threshold {
-                    continue;
-                }
-                stack.push((r, c));
-                energy[r][c] = flashed;
-                while let Some((r, c)) = stack.pop() {
-                    step_flashes += 1;
-                    for (rr, cc) in neighbors(r_size, c_size, r, c, &energy, flashed) {
-                        energy[rr][cc] += 1;
-                        if energy[rr][cc] > threshold {
-                            stack.push((rr, cc));
-                            energy[rr][cc] = flashed;
-                        }
+        for p in (0..r_size).into_iter().cartesian_product(0..c_size) {
+            if energy[p] <= threshold {
+                continue;
+            }
+            stack.push(p);
+            energy[p] = flashed;
+            while let Some(q) = stack.pop(){
+                step_flashes += 1;
+                for qq in neighbors(r_size, c_size, q.0, q.1, &energy, flashed) {
+                    energy[qq] += 1;
+                    if energy[qq] > threshold {
+                        stack.push(qq);
+                        energy[qq] = flashed;
                     }
                 }
             }
