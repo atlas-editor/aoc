@@ -1,14 +1,14 @@
-use itertools::Itertools;
 use crate::days::utils::*;
+use itertools::Itertools;
 
 pub fn p1(raw_input: &[u8]) -> i16 {
     let mut input = parse_input(raw_input);
-    p(&mut input, false)
+    _p1(&mut input)
 }
 
-pub fn p2(raw_input: &[u8]) -> i16 {
+pub fn p2(raw_input: &[u8]) -> usize {
     let mut input = parse_input(raw_input);
-    p(&mut input, true)
+    _p2(&mut input)
 }
 
 fn parse_input(raw_input: &[u8]) -> Matrix<i16> {
@@ -50,44 +50,41 @@ fn neighbors(
     nbrs
 }
 
-fn p(energy: &mut Matrix<i16>, p2: bool) -> i16 {
+fn step(energy: &mut Matrix<i16>, idx: i16) -> i16 {
     let (r_size, c_size) = energy.shape;
-    let area = (r_size * c_size) as i16;
-    let mut flashes = 0;
     let mut step_flashes = 0;
     let mut stack = vec![];
-    for i in 0.. {
-        step_flashes = 0;
-        let flashed = -i - 1;
-        let threshold = flashed + 9;
-        if i == 100 && !p2 {
-            return flashes;
-        }
 
-        for p in (0..r_size).into_iter().cartesian_product(0..c_size) {
-            if energy[p] <= threshold {
-                continue;
-            }
-            stack.push(p);
-            energy[p] = flashed;
-            while let Some(q) = stack.pop(){
-                step_flashes += 1;
-                for qq in neighbors(r_size, c_size, q.0, q.1, &energy, flashed) {
-                    energy[qq] += 1;
-                    if energy[qq] > threshold {
-                        stack.push(qq);
-                        energy[qq] = flashed;
-                    }
+    let flashed = -idx - 1;
+    let threshold = flashed + 9;
+
+    for p in (0..r_size).into_iter().cartesian_product(0..c_size) {
+        if energy[p] <= threshold {
+            continue;
+        }
+        stack.push(p);
+        energy[p] = flashed;
+        while let Some(q) = stack.pop() {
+            step_flashes += 1;
+            for qq in neighbors(r_size, c_size, q.0, q.1, &energy, flashed) {
+                energy[qq] += 1;
+                if energy[qq] > threshold {
+                    stack.push(qq);
+                    energy[qq] = flashed;
                 }
             }
         }
-
-        if step_flashes == area && p2 {
-            return i + 1;
-        }
-        flashes += step_flashes;
     }
-    unreachable!()
+    step_flashes
+}
+
+fn _p1(energy: &mut Matrix<i16>) -> i16 {
+    (0..100).map(|idx| step(energy, idx)).sum()
+}
+
+fn _p2(energy: &mut Matrix<i16>) -> usize {
+    let full = (energy.shape.0 * energy.shape.1) as i16;
+    (0..).find_position(|&idx| step(energy, idx) == full).unwrap().0 + 1
 }
 
 #[cfg(test)]
