@@ -2,83 +2,105 @@ use crate::days::utils::*;
 use itertools::Itertools;
 
 pub fn p1(raw_input: &[u8]) -> i16 {
-    let mut input = parse_input(raw_input);
-    _p1(&mut input)
+    let input = parse_input(raw_input);
+    _p1(input)
 }
 
 pub fn p2(raw_input: &[u8]) -> usize {
-    let mut input = parse_input(raw_input);
-    _p2(&mut input)
+    let input = parse_input(raw_input);
+    _p2(input)
 }
 
 fn parse_input(raw_input: &[u8]) -> Matrix<i16> {
     Matrix::from_digits(raw_input)
 }
 
-fn neighbors(p: usize, r_size: usize, c_size: usize) -> impl Iterator<Item = usize> {
-    let p = p as i16;
+fn neighbors(idx: usize, r_size: usize, c_size: usize) -> impl Iterator<Item = usize> {
+    let idx = idx as i16;
     let r_size = r_size as i16;
     let c_size = c_size as i16;
-    let (r, c) = (p / c_size, p % c_size);
+    let (r, c) = (idx / c_size, idx % c_size);
     [
-        (p - c_size - 1, (r - 1, c - 1)),
-        (p - c_size, (r - 1, c)),
-        (p - c_size + 1, (r - 1, c + 1)),
-        (p - 1, (r, c - 1)),
-        (p + 1, (r, c + 1)),
-        (p + c_size - 1, (r + 1, c - 1)),
-        (p + c_size, (r + 1, c)),
-        (p + c_size + 1, (r + 1, c + 1)),
+        (idx - c_size - 1, (r - 1, c - 1)),
+        (idx - c_size, (r - 1, c)),
+        (idx - c_size + 1, (r - 1, c + 1)),
+        (idx - 1, (r, c - 1)),
+        (idx + 1, (r, c + 1)),
+        (idx + c_size - 1, (r + 1, c - 1)),
+        (idx + c_size, (r + 1, c)),
+        (idx + c_size + 1, (r + 1, c + 1)),
     ]
     .into_iter()
-    .filter(move |(q, (rr, cc))| *rr >= 0 && *rr < r_size && *cc >= 0 && *cc < c_size)
-    .map(|(q, _)| q as usize)
+    .filter(move |(_, (rr, cc))| *rr >= 0 && *rr < r_size && *cc >= 0 && *cc < c_size)
+    .map(|(i, _)| i as usize)
 }
 
-fn step(energy: &mut Matrix<i16>, idx: i16) -> i16 {
-    let (r_size, c_size) = energy.shape;
-    let mut step_flashes = 0;
-    let mut stack = vec![];
+struct StepIterator<S, T, U> {
+    m: Matrix<S>,
+    step: T,
+    stack: Vec<U>,
+}
 
-    let flashed = -idx - 1;
-    let threshold = flashed + 9;
-
-    for p in 0..(r_size * c_size) {
-        if energy[p] <= threshold {
-            continue;
-        }
-        stack.push(p);
-        energy[p] = flashed;
-        while let Some(q) = stack.pop() {
-            step_flashes += 1;
-
-            for qq in neighbors(q, r_size, c_size) {
-                if energy[qq] == flashed {
-                    continue;
-                }
-                energy[qq] += 1;
-                if energy[qq] > threshold {
-                    stack.push(qq);
-                    energy[qq] = flashed;
-                }
-            }
+impl StepIterator<i16, i16, usize> {
+    fn new(m: Matrix<i16>) -> Self {
+        Self {
+            m,
+            step: 0,
+            stack: vec![],
         }
     }
 
-    step_flashes
+    fn flashed(&self) -> i16 {
+        -self.step - 1
+    }
+
+    fn threshold(&self) -> i16 {
+        self.flashed() + 9
+    }
 }
 
-fn _p1(energy: &mut Matrix<i16>) -> i16 {
-    (0..100).map(|idx| step(energy, idx)).sum()
+impl Iterator for StepIterator<i16, i16, usize> {
+    type Item = i16;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut flashes = 0;
+        for p in 0..self.m.len() {
+            if self.m[p] <= self.threshold() {
+                continue;
+            }
+
+            self.stack.push(p);
+            self.m[p] = self.flashed();
+
+            while let Some(q) = self.stack.pop() {
+                flashes += 1;
+
+                for qq in neighbors(q, self.m.r_size(), self.m.c_size()) {
+                    if self.m[qq] == self.flashed() {
+                        continue;
+                    }
+
+                    self.m[qq] += 1;
+                    if self.m[qq] > self.threshold() {
+                        self.stack.push(qq);
+                        self.m[qq] = self.flashed();
+                    }
+                }
+            }
+        }
+        self.step += 1;
+        Some(flashes)
+    }
 }
 
-fn _p2(energy: &mut Matrix<i16>) -> usize {
-    let full = (energy.shape.0 * energy.shape.1) as i16;
-    (0..)
-        .find_position(|&idx| step(energy, idx) == full)
-        .unwrap()
-        .0
-        + 1
+fn _p1(energy: Matrix<i16>) -> i16 {
+    StepIterator::new(energy).take(100).sum()
+}
+
+fn _p2(energy: Matrix<i16>) -> usize {
+    let mut it = StepIterator::new(energy);
+    let all = it.m.len() as i16;
+    it.find_position(|&flashes| flashes == all).unwrap().0 + 1
 }
 
 #[cfg(test)]

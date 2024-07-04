@@ -37,6 +37,18 @@ impl<T> Matrix<T> {
             data,
         }
     }
+
+    pub fn r_size(&self) -> usize {
+        self.shape.0
+    }
+
+    pub fn c_size(&self) -> usize {
+        self.shape.1
+    }
+
+    pub fn len(&self) -> usize {
+        self.r_size() * self.c_size()
+    }
 }
 
 impl Matrix<u8> {
