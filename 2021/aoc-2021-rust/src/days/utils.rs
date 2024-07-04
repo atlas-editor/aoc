@@ -46,7 +46,7 @@ impl Matrix<u8> {
 }
 
 impl<T: From<u8>> Matrix<T> {
-    pub fn digits(repr: &[u8]) -> Self {
+    pub fn from_digits(repr: &[u8]) -> Self {
         Self::from_repr(repr, |x| T::from(x - 48))
     }
 }
@@ -96,4 +96,21 @@ macro_rules! matrix {
     [$val:expr; $D:expr] => {
         matrix![$val; $D, $D]
     };
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn inner() -> impl Iterator {
+        [(-1, 1), (2, 2), (-11, 1), (111, 1)].iter()
+    }
+
+    #[test]
+    fn it_works() {
+        for i in inner() {
+            let k = inner().next().unwrap();
+            println!("ok");
+        }
+    }
 }

@@ -12,13 +12,13 @@ pub fn p2(raw_input: &[u8]) -> usize {
 }
 
 fn parse_input(raw_input: &[u8]) -> Matrix<i16> {
-    Matrix::digits(raw_input)
+    Matrix::from_digits(raw_input)
 }
 
-fn neighbors(p: usize, m: &Matrix<i16>, flashed: i16) -> Vec<usize> {
+fn neighbors(p: usize, r_size: usize, c_size: usize) -> impl Iterator<Item = usize> {
     let p = p as i16;
-    let r_size = m.shape.0 as i16;
-    let c_size = m.shape.1 as i16;
+    let r_size = r_size as i16;
+    let c_size = c_size as i16;
     let (r, c) = (p / c_size, p % c_size);
     [
         (p - c_size - 1, (r - 1, c - 1)),
@@ -30,12 +30,9 @@ fn neighbors(p: usize, m: &Matrix<i16>, flashed: i16) -> Vec<usize> {
         (p + c_size, (r + 1, c)),
         (p + c_size + 1, (r + 1, c + 1)),
     ]
-    .iter()
-    .filter(|(q, (rr, cc))| {
-        *rr >= 0 && *rr < r_size && *cc >= 0 && *cc < c_size && m[*q as usize] != flashed
-    })
-    .map(|(q, _)| *q as usize)
-    .collect_vec()
+    .into_iter()
+    .filter(move |(q, (rr, cc))| *rr >= 0 && *rr < r_size && *cc >= 0 && *cc < c_size)
+    .map(|(q, _)| q as usize)
 }
 
 fn step(energy: &mut Matrix<i16>, idx: i16) -> i16 {
@@ -50,13 +47,15 @@ fn step(energy: &mut Matrix<i16>, idx: i16) -> i16 {
         if energy[p] <= threshold {
             continue;
         }
-
         stack.push(p);
         energy[p] = flashed;
-
         while let Some(q) = stack.pop() {
             step_flashes += 1;
-            for qq in neighbors(q, &energy, flashed) {
+
+            for qq in neighbors(q, r_size, c_size) {
+                if energy[qq] == flashed {
+                    continue;
+                }
                 energy[qq] += 1;
                 if energy[qq] > threshold {
                     stack.push(qq);
