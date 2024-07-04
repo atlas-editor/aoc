@@ -15,39 +15,27 @@ fn parse_input(raw_input: &[u8]) -> Matrix<i16> {
     Matrix::digits(raw_input)
 }
 
-fn neighbors(
-    r_size: usize,
-    c_size: usize,
-    r: usize,
-    c: usize,
-    m: &Matrix<i16>,
-    flashed: i16,
-) -> Vec<(usize, usize)> {
-    let mut nbrs = vec![];
-    for (dr, dc) in [
-        (1, 0),
-        (1, 1),
-        (0, 1),
-        (-1, 1),
-        (-1, 0),
-        (-1, -1),
-        (0, -1),
-        (1, -1),
-    ] {
-        let rr = r as i8 + dr;
-        let cc = c as i8 + dc;
-
-        if rr >= 0
-            && rr < r_size as i8
-            && cc >= 0
-            && cc < c_size as i8
-            && m[rr as usize][cc as usize] != flashed
-        {
-            nbrs.push((rr as usize, cc as usize))
-        }
-    }
-
-    nbrs
+fn neighbors(p: usize, m: &Matrix<i16>, flashed: i16) -> Vec<usize> {
+    let p = p as i16;
+    let r_size = m.shape.0 as i16;
+    let c_size = m.shape.1 as i16;
+    let (r, c) = (p / c_size, p % c_size);
+    [
+        (p - c_size - 1, (r - 1, c - 1)),
+        (p - c_size, (r - 1, c)),
+        (p - c_size + 1, (r - 1, c + 1)),
+        (p - 1, (r, c - 1)),
+        (p + 1, (r, c + 1)),
+        (p + c_size - 1, (r + 1, c - 1)),
+        (p + c_size, (r + 1, c)),
+        (p + c_size + 1, (r + 1, c + 1)),
+    ]
+    .iter()
+    .filter(|(q, (rr, cc))| {
+        *rr >= 0 && *rr < r_size && *cc >= 0 && *cc < c_size && m[*q as usize] != flashed
+    })
+    .map(|(q, _)| *q as usize)
+    .collect_vec()
 }
 
 fn step(energy: &mut Matrix<i16>, idx: i16) -> i16 {
@@ -58,15 +46,17 @@ fn step(energy: &mut Matrix<i16>, idx: i16) -> i16 {
     let flashed = -idx - 1;
     let threshold = flashed + 9;
 
-    for p in (0..r_size).into_iter().cartesian_product(0..c_size) {
+    for p in 0..(r_size * c_size) {
         if energy[p] <= threshold {
             continue;
         }
+
         stack.push(p);
         energy[p] = flashed;
+
         while let Some(q) = stack.pop() {
             step_flashes += 1;
-            for qq in neighbors(r_size, c_size, q.0, q.1, &energy, flashed) {
+            for qq in neighbors(q, &energy, flashed) {
                 energy[qq] += 1;
                 if energy[qq] > threshold {
                     stack.push(qq);
@@ -75,6 +65,7 @@ fn step(energy: &mut Matrix<i16>, idx: i16) -> i16 {
             }
         }
     }
+
     step_flashes
 }
 
@@ -84,7 +75,11 @@ fn _p1(energy: &mut Matrix<i16>) -> i16 {
 
 fn _p2(energy: &mut Matrix<i16>) -> usize {
     let full = (energy.shape.0 * energy.shape.1) as i16;
-    (0..).find_position(|&idx| step(energy, idx) == full).unwrap().0 + 1
+    (0..)
+        .find_position(|&idx| step(energy, idx) == full)
+        .unwrap()
+        .0
+        + 1
 }
 
 #[cfg(test)]

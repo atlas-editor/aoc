@@ -61,18 +61,16 @@ impl<T: Debug> Display for Matrix<T> {
 }
 
 impl<T> Index<usize> for Matrix<T> {
-    type Output = [T];
+    type Output = T;
 
     fn index(&self, index: usize) -> &Self::Output {
-        let loc = index * self.shape.1;
-        &self.data[loc..loc + self.shape.1]
+        &self.data[index]
     }
 }
 
 impl<T> IndexMut<usize> for Matrix<T> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        let loc = index * self.shape.1;
-        &mut self.data[loc..loc + self.shape.1]
+        &mut self.data[index]
     }
 }
 
