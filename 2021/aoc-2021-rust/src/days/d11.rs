@@ -89,7 +89,11 @@ impl Iterator for StepIterator<i16, i16, usize> {
             }
         }
         self.step += 1;
-        Some(flashes)
+        if flashes != self.m.len() as i16 {
+            Some(flashes)
+        } else {
+            None
+        }
     }
 }
 
@@ -98,9 +102,7 @@ fn _p1(energy: Matrix<i16>) -> i16 {
 }
 
 fn _p2(energy: Matrix<i16>) -> usize {
-    let mut it = StepIterator::new(energy);
-    let all = it.m.len() as i16;
-    it.find_position(|&flashes| flashes == all).unwrap().0 + 1
+    StepIterator::new(energy).count() + 1
 }
 
 #[cfg(test)]
