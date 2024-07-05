@@ -36,7 +36,7 @@ fn neighbors(idx: usize, r_size: usize, c_size: usize) -> impl Iterator<Item = u
 }
 
 struct StepIterator<S, T, U> {
-    m: Matrix<S>,
+    matrix: Matrix<S>,
     step: T,
     stack: Vec<U>,
 }
@@ -44,7 +44,7 @@ struct StepIterator<S, T, U> {
 impl StepIterator<i16, i16, usize> {
     fn new(m: Matrix<i16>) -> Self {
         Self {
-            m,
+            matrix: m,
             step: 0,
             stack: vec![],
         }
@@ -64,32 +64,32 @@ impl Iterator for StepIterator<i16, i16, usize> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut flashes = 0;
-        for p in 0..self.m.len() {
-            if self.m[p] <= self.threshold() {
+        for p in 0..self.matrix.len() {
+            if self.matrix[p] <= self.threshold() {
                 continue;
             }
 
             self.stack.push(p);
-            self.m[p] = self.flashed();
+            self.matrix[p] = self.flashed();
 
             while let Some(q) = self.stack.pop() {
                 flashes += 1;
 
-                for qq in neighbors(q, self.m.r_size(), self.m.c_size()) {
-                    if self.m[qq] == self.flashed() {
+                for qq in neighbors(q, self.matrix.r_size(), self.matrix.c_size()) {
+                    if self.matrix[qq] == self.flashed() {
                         continue;
                     }
 
-                    self.m[qq] += 1;
-                    if self.m[qq] > self.threshold() {
+                    self.matrix[qq] += 1;
+                    if self.matrix[qq] > self.threshold() {
                         self.stack.push(qq);
-                        self.m[qq] = self.flashed();
+                        self.matrix[qq] = self.flashed();
                     }
                 }
             }
         }
         self.step += 1;
-        if flashes != self.m.len() as i16 {
+        if flashes != self.matrix.len() as i16 {
             Some(flashes)
         } else {
             None
