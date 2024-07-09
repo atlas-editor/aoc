@@ -1,6 +1,6 @@
+use bstr::ByteSlice;
 use std::fmt;
 use std::fmt::{Debug, Display};
-use std::io::BufRead;
 use std::ops::{Index, IndexMut};
 use std::str::FromStr;
 
@@ -28,7 +28,7 @@ impl<T> Matrix<T> {
         let mut data = vec![];
         for line in repr.lines() {
             r_size += 1;
-            for &el in line.unwrap().as_bytes() {
+            for &el in line {
                 data.push(transform(el));
             }
         }
@@ -110,19 +110,130 @@ macro_rules! matrix {
     };
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+#[derive(Debug, Clone)]
+pub struct ByteMap<T> {
+    map: [T; 256],
+}
 
-    fn inner() -> impl Iterator {
-        [(-1, 1), (2, 2), (-11, 1), (111, 1)].iter()
-    }
-
-    #[test]
-    fn it_works() {
-        for i in inner() {
-            let k = inner().next().unwrap();
-            println!("ok");
+impl<T: Default> ByteMap<T> {
+    pub fn new() -> Self {
+        Self {
+            map: [(); 256].map(|_| T::default()),
         }
     }
+}
+
+impl<T> Index<u8> for ByteMap<T> {
+    type Output = T;
+
+    fn index(&self, index: u8) -> &Self::Output {
+        &self.map[index as usize]
+    }
+}
+
+impl<T> IndexMut<u8> for ByteMap<T> {
+    fn index_mut(&mut self, index: u8) -> &mut Self::Output {
+        &mut self.map[index as usize]
+    }
+}
+
+#[macro_export]
+macro_rules! bmap {
+    {$val:expr} => {
+        ByteMap{map: [(); 256].map(|_| $val)}
+    };
+    {$($key:expr => $value:expr,)+} => { bmap!{$($key => $value),+} };
+    {$($key:expr => $value:expr),*} => {
+        {
+            let mut _map = ByteMap::new();
+            $(
+                _map[$key] = $value;
+            )*
+            _map
+        }
+    };
+}
+
+pub type ByteSet = ByteMap<bool>;
+
+impl ByteSet {
+    pub fn insert(&mut self, value: u8) {
+        self[value] = true;
+    }
+
+    pub fn remove(&mut self, value: u8) {
+        self[value] = false;
+    }
+}
+
+pub type ByteGraph = ByteMap<Vec<u8>>;
+
+impl ByteGraph {
+    fn neighbors(&self, u: u8) -> impl Iterator<Item = &u8> {
+        self[u].iter()
+    }
+
+    pub fn insert(&mut self, u: u8, v: u8) {
+        if !self[u].contains(&v) {
+            self[u].push(v);
+        }
+        if !self[v].contains(&u) {
+            self[v].push(u);
+        }
+    }
+
+    fn from_pairs(pairs: Vec<(u8, u8)>) -> Self {
+        let mut _graph = Self::new();
+        for (u, v) in pairs {
+            if !_graph[u].contains(&v) {
+                _graph[u].push(v);
+            }
+            if !_graph[v].contains(&u) {
+                _graph[v].push(u);
+            }
+        }
+        _graph
+    }
+
+    fn dfs_custom(&self, u: u8, v: u8, visited: &mut ByteMap<i32>, allowed: i32, has_duplicate: &mut bool) -> u32 {
+        if u & 1 == 0 {
+            visited[u] += 1;
+            if visited[u] == allowed {
+                *has_duplicate = true;
+            }
+        }
+        let mut count = 0;
+        if u == v {
+            count += 1;
+        } else {
+            for &w in self.neighbors(u) {
+                if w & 1 == 1 || visited[w] < allowed && !*has_duplicate {
+                    count += self.dfs_custom(w, v, visited, allowed, has_duplicate);
+                }
+            }
+        }
+        if u & 1 == 0 {
+            visited[u] -= 1;
+            *has_duplicate = false;
+        }
+        count
+    }
+
+    pub fn paths_count(&self, u: u8, v: u8, allowed: i32) -> u32 {
+        self.dfs_custom(u, v, &mut bmap! {0 => allowed-1}, allowed, &mut false)
+    }
+}
+
+#[macro_export]
+macro_rules! bgraph {
+    ($(($key:expr, $value:expr),)+) => { bgraph!($(($key, $value)),+) };
+    ($(($key:expr, $value:expr)),*) => {
+        {
+            let mut _graph = ByteGraph::new();
+            $(
+                _graph.insert($key, $value);
+            )*
+            _graph
+        }
+    };
 }
