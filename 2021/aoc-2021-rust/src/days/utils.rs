@@ -1,9 +1,9 @@
-use bstr::ByteSlice;
 use std::fmt;
 use std::fmt::{Debug, Display};
 use std::ops::{Index, IndexMut};
 use std::str::FromStr;
 
+use bstr::ByteSlice;
 use regex::Regex;
 
 pub fn ints<T: FromStr>(input: &str) -> Vec<T>
@@ -166,10 +166,24 @@ impl ByteSet {
     }
 }
 
+#[macro_export]
+macro_rules! bset {
+    {$($key:expr,)+} => { bset!{$($key),+} };
+    {$($key:expr),*} => {
+        {
+            let mut _set = ByteSet::new();
+            $(
+                _set[$key] = true;
+            )*
+            _set
+        }
+    };
+}
+
 pub type ByteGraph = ByteMap<Vec<u8>>;
 
 impl ByteGraph {
-    fn neighbors(&self, u: u8) -> impl Iterator<Item = &u8> {
+    pub fn neighbors(&self, u: u8) -> impl Iterator<Item = &u8> {
         self[u].iter()
     }
 
@@ -180,47 +194,6 @@ impl ByteGraph {
         if !self[v].contains(&u) {
             self[v].push(u);
         }
-    }
-
-    fn from_pairs(pairs: Vec<(u8, u8)>) -> Self {
-        let mut _graph = Self::new();
-        for (u, v) in pairs {
-            if !_graph[u].contains(&v) {
-                _graph[u].push(v);
-            }
-            if !_graph[v].contains(&u) {
-                _graph[v].push(u);
-            }
-        }
-        _graph
-    }
-
-    fn dfs_custom(&self, u: u8, v: u8, visited: &mut ByteMap<i32>, allowed: i32, has_duplicate: &mut bool) -> u32 {
-        if u & 1 == 0 {
-            visited[u] += 1;
-            if visited[u] == allowed {
-                *has_duplicate = true;
-            }
-        }
-        let mut count = 0;
-        if u == v {
-            count += 1;
-        } else {
-            for &w in self.neighbors(u) {
-                if w & 1 == 1 || visited[w] < allowed && !*has_duplicate {
-                    count += self.dfs_custom(w, v, visited, allowed, has_duplicate);
-                }
-            }
-        }
-        if u & 1 == 0 {
-            visited[u] -= 1;
-            *has_duplicate = false;
-        }
-        count
-    }
-
-    pub fn paths_count(&self, u: u8, v: u8, allowed: i32) -> u32 {
-        self.dfs_custom(u, v, &mut bmap! {0 => allowed-1}, allowed, &mut false)
     }
 }
 
