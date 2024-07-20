@@ -2,6 +2,6 @@ mod days;
 mod utils;
 
 fn main() {
-    run!(d12);
-    benchmark_all!(d12);
+    run!(d13);
+    benchmark_all!(d13);
 }

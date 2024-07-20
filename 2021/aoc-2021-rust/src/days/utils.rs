@@ -1,6 +1,6 @@
 use std::fmt;
-use std::fmt::{Debug, Display};
-use std::ops::{Index, IndexMut};
+use std::fmt::{Debug, Display, Formatter};
+use std::ops::{Add, Index, IndexMut, Mul};
 use std::str::FromStr;
 
 use bstr::ByteSlice;
@@ -16,10 +16,30 @@ where
         .collect()
 }
 
+pub fn atoi<T: From<u8> + Mul<Output = T> + Add<Output = T>>(input: &[u8]) -> T {
+    input.iter().fold(T::from(0), |res, digit| {
+        T::from(10) * res + T::from(digit - 48)
+    })
+}
+
 #[derive(Debug, Clone)]
 pub struct Matrix<T> {
     pub shape: (usize, usize),
     pub data: Vec<T>,
+}
+
+impl<T: Display> Display for Matrix<T> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        for r in 0..self.r_size() {
+            for c in 0..self.c_size() {
+                write!(f, "{}", self[(r, c)])?;
+            }
+            if r < self.r_size() - 1 {
+                writeln!(f)?;
+            }
+        }
+        Ok(())
+    }
 }
 
 impl<T> Matrix<T> {
@@ -60,15 +80,6 @@ impl Matrix<u8> {
 impl<T: From<u8>> Matrix<T> {
     pub fn from_digits(repr: &[u8]) -> Self {
         Self::from_repr(repr, |x| T::from(x - 48))
-    }
-}
-
-impl<T: Debug> Display for Matrix<T> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for i in 0..self.shape.0 {
-            writeln!(f, "{:?}", &self[i])?;
-        }
-        Ok(())
     }
 }
 

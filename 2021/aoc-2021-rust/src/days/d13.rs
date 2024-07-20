@@ -1,93 +1,169 @@
-use std::collections::HashSet;
-
+use bstr::ByteSlice;
 use itertools::Itertools;
-use parse_display::FromStr;
 
-pub fn p1(raw_input: &str) -> usize {
+use crate::days::utils::*;
+use crate::matrix;
+
+pub fn p1(raw_input: &[u8]) -> usize {
     let (nums, folds) = parse_input(raw_input);
-    _p1(&nums, &folds[0])
+    _p1(&nums, &folds)
 }
 
-pub fn p2(raw_input: &str) -> String {
+pub fn p2(raw_input: &[u8]) -> String {
     let (nums, folds) = parse_input(raw_input);
     _p2(nums, &folds)
 }
 
-fn parse_input(raw_input: &str) -> (Vec<(i32, i32)>, Vec<Fold>) {
-    let input = raw_input.split_once("\n\n").unwrap();
-    let nums = input
+fn parse_input(raw_input: &[u8]) -> (Vec<(u16, u16)>, Vec<Fold>) {
+    let input = raw_input.split_once_str(b"\n\n").unwrap();
+    let dots = input
         .0
         .lines()
         .map(|x| {
-            x.split_once(',')
-                .map(|y| (y.0.parse::<i32>().unwrap(), y.1.parse::<i32>().unwrap()))
+            x.split_once_str(b",")
+                .map(|y| (atoi(y.0), atoi(y.1)))
                 .unwrap()
         })
         .collect_vec();
-    let folds = input
-        .1
-        .lines()
-        .map(|x| x.parse::<Fold>().unwrap())
-        .collect_vec();
-    (nums, folds)
+    let folds = input.1.lines().map(|x| Fold::parse(x)).collect_vec();
+    (dots, folds)
 }
 
-#[derive(FromStr, Debug)]
-#[display(style = "snake_case")]
+#[derive(PartialEq)]
 enum FoldType {
     X,
     Y,
 }
 
-#[derive(FromStr, Debug)]
-#[display("fold along {type}={val}")]
 struct Fold {
     r#type: FoldType,
-    val: i32,
+    val: u16,
 }
 
 impl Fold {
-    fn apply(&self, pair: (i32, i32)) -> (i32, i32) {
+    fn apply(&self, dot: (u16, u16)) -> (u16, u16) {
         match self.r#type {
             FoldType::X => {
-                if pair.0 > self.val {
-                    (2 * self.val - pair.0, pair.1)
+                if dot.0 > self.val {
+                    (2 * self.val - dot.0, dot.1)
                 } else {
-                    pair
+                    dot
                 }
             }
             FoldType::Y => {
-                if pair.1 > self.val {
-                    (pair.0, 2 * self.val - pair.1)
+                if dot.1 > self.val {
+                    (dot.0, 2 * self.val - dot.1)
                 } else {
-                    pair
+                    dot
                 }
             }
         }
     }
-}
 
-fn _p1(nums: &[(i32, i32)], fold: &Fold) -> usize {
-    nums.iter()
-        .map(|x| fold.apply(*x))
-        .collect::<HashSet<_>>()
-        .len()
-}
-
-fn _p2(mut nums: Vec<(i32, i32)>, folds: &[Fold]) -> String {
-    for fold in folds {
-        nums = nums.iter().map(|x| fold.apply(*x)).collect()
-    }
-    let mut code = String::new();
-    for r in 0..6 {
-        for c in 0..40 {
-            if nums.contains(&(c, r)) {
-                code.push('#');
-            } else {
-                code.push(' ');
+    fn parse(repr: &[u8]) -> Self {
+        let val = atoi(&repr[13..]);
+        if repr[11] == b'x' {
+            Self {
+                r#type: FoldType::X,
+                val,
+            }
+        } else {
+            Self {
+                r#type: FoldType::Y,
+                val,
             }
         }
-        code.push('\n');
     }
-    code
+}
+
+fn find_first_fold_val(folds: &[Fold], r#type: FoldType) -> usize {
+    folds.iter().find(|fold| fold.r#type == r#type).unwrap().val as usize
+}
+
+fn find_last_fold_val(folds: &[Fold], r#type: FoldType) -> usize {
+    folds
+        .iter()
+        .rev()
+        .find(|fold| fold.r#type == r#type)
+        .unwrap()
+        .val as usize
+}
+
+fn _p1(nums: &[(u16, u16)], folds: &[Fold]) -> usize {
+    let (x_size, y_size): (usize, usize) = (
+        2 * find_first_fold_val(folds, FoldType::X) + 1,
+        2 * find_first_fold_val(folds, FoldType::Y) + 1,
+    );
+    let mut paper = matrix![false; y_size, x_size];
+
+    let mut dots = 0;
+    for pt in nums {
+        let (x, y) = folds[0].apply(*pt);
+        let (x, y) = (x as usize, y as usize);
+        if !paper[(y, x)] {
+            dots += 1;
+            paper[(y, x)] = true;
+        }
+    }
+    dots
+}
+
+fn _p2(mut nums: Vec<(u16, u16)>, folds: &[Fold]) -> String {
+    let (x_size, y_size): (usize, usize) = (
+        find_last_fold_val(folds, FoldType::X),
+        find_last_fold_val(folds, FoldType::Y),
+    );
+    let mut paper = matrix!["."; y_size, x_size];
+
+    for mut pt in nums {
+        for fold in folds {
+            pt = fold.apply(pt);
+        }
+        paper[(pt.1 as usize, pt.0 as usize)] = "#";
+    }
+    paper.to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        assert_eq!(p1(raw_input()), 17);
+        assert_eq!(
+            p2(raw_input()),
+            "#####
+#...#
+#...#
+#...#
+#####
+.....
+....."
+        );
+    }
+
+    fn raw_input<'a>() -> &'a [u8] {
+        b"6,10
+0,14
+9,10
+0,3
+10,4
+4,11
+6,0
+6,12
+4,1
+0,13
+10,12
+3,4
+3,0
+8,4
+1,10
+2,14
+8,10
+9,0
+
+fold along y=7
+fold along x=5"
+    }
 }
