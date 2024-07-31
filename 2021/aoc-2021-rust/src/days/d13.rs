@@ -21,7 +21,7 @@ fn parse_input(raw_input: &[u8]) -> (Vec<(u16, u16)>, Vec<Fold>) {
         .lines()
         .map(|x| {
             x.split_once_str(b",")
-                .map(|y| (atoi(y.0), atoi(y.1)))
+                .map(|y| (atopi(y.0), atopi(y.1)))
                 .unwrap()
         })
         .collect_vec();
@@ -61,7 +61,7 @@ impl Fold {
     }
 
     fn parse(repr: &[u8]) -> Self {
-        let val = atoi(&repr[13..]);
+        let val = atopi(&repr[13..]);
         if repr[11] == b'x' {
             Self {
                 r#type: FoldType::X,

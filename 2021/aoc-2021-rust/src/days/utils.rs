@@ -1,6 +1,6 @@
 use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
-use std::ops::{Add, Index, IndexMut, Mul};
+use std::ops::{Add, Index, IndexMut, Mul, Neg};
 use std::str::FromStr;
 
 use bstr::ByteSlice;
@@ -16,10 +16,18 @@ where
         .collect()
 }
 
-pub fn atoi<T: From<u8> + Mul<Output = T> + Add<Output = T>>(input: &[u8]) -> T {
+pub fn atopi<T: From<u8> + Mul<Output = T> + Add<Output = T>>(input: &[u8]) -> T {
     input.iter().fold(T::from(0), |res, digit| {
         T::from(10) * res + T::from(digit - 48)
     })
+}
+
+pub fn atoi<T: From<u8> + Mul<Output = T> + Add<Output = T> + Neg<Output = T>>(input: &[u8]) -> T {
+    if input[0] == b'-' {
+        -atopi::<T>(&input[1..])
+    } else {
+        atopi::<T>(input)
+    }
 }
 
 #[derive(Debug, Clone)]
