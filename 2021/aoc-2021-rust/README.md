@@ -17,7 +17,7 @@ day 11    0.029 ms  0.092 ms
 day 12    0.075 ms  5.424 ms
 day 13    0.029 ms  0.032 ms
 day 14    0.143 ms  0.538 ms
-day 15    0.932 ms  26.87 ms
+day 15    0.639 ms  19.47 ms
 day 16    0.133 ms  0.139 ms
 day 17    0.053 ms  0.058 ms
 day 18    983.8 ms  15089 ms
