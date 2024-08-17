@@ -41,6 +41,21 @@ fn add_vectors(vectors: &[&Vec<usize>]) -> Vec<usize> {
     result
 }
 
+/// map the chars in the input, "BCFHKNOPSV", onto [0, 10), "letter" `0` then corresponds to "B" and
+/// "letter" `3` corresponds to "H"
+///
+/// `dp[i][j0][j1]` := counter on chars of the result of applying the rules `i` times starting with
+/// only the pair `(j0, j1)` which corresponds to the two chars `x`, `y` such that the index of `x`
+/// in "BCFHKNOPSV" is `j0` and the index of `y` is `j1`
+///
+/// assume `m := r[j0][j1]` is char that is inserted between letters `j0` and `j1` based on the given
+/// rules, or `None`, then the following holds:
+///
+/// `dp[0][j0][j1] = 0`
+///
+/// `dp[i][j0][j1] = 0` for all `i` if `m` is `None`
+///
+/// `dp[i][j0][j1] = Counter(m) + dp[i-1][j0][m] + dp[i-1][m][j1]`, else
 fn dp(rules: &HashMap<(usize, usize), usize>, d: usize) -> Vec<Vec<Vec<usize>>> {
     let zero = vec![0; 10];
     let mut table = vec![vec![vec![zero.clone(); 10]; 10]; d + 1];
