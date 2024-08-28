@@ -22,6 +22,12 @@ pub fn atopi<T: From<u8> + Mul<Output = T> + Add<Output = T>>(input: &[u8]) -> T
     })
 }
 
+pub fn atopi2<T: From<u8> + Mul<Output = T> + Add<Output = T>>(input: &[u8]) -> T {
+    input.iter().fold(T::from(0), |res, digit| {
+        T::from(2) * res + T::from(digit - 48)
+    })
+}
+
 pub fn atoi<T: From<u8> + Mul<Output = T> + Add<Output = T> + Neg<Output = T>>(input: &[u8]) -> T {
     if input[0] == b'-' {
         -atopi::<T>(&input[1..])
@@ -51,6 +57,12 @@ impl<T: Display> Display for Matrix<T> {
 }
 
 impl<T> Matrix<T> {
+    pub fn from_shape_and_data(shape: (usize, usize), data: Vec<T>) -> Self {
+        if data.len() != shape.0 * shape.1 {
+            panic!("invalid shape for data")
+        }
+        Self { shape, data }
+    }
     pub fn from_repr<F: Fn(u8) -> T>(repr: &[u8], transform: F) -> Self {
         let mut r_size = 0usize;
         let mut data = vec![];
@@ -182,6 +194,10 @@ impl ByteSet {
 
     pub fn remove(&mut self, value: u8) {
         self[value] = false;
+    }
+
+    pub fn contains(&self, value: u8) -> bool {
+        self[value] == true
     }
 }
 
