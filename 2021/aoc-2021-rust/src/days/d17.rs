@@ -1,4 +1,4 @@
-use crate::days::utils::atoi;
+use crate::days::utils::{atoi, parse_ints};
 
 pub fn p1(raw_input: &[u8]) -> i32 {
     // works when there is an integer `k` s.t. `x0 <= (k*(k+1))/2 <= x1` AND y0 is negative
@@ -14,20 +14,7 @@ pub fn p2(raw_input: &[u8]) -> i32 {
 type Target = (i32, i32, i32, i32);
 
 fn parse_input(raw_input: &[u8]) -> Target {
-    let mut target: Vec<i32> = Vec::with_capacity(4);
-    let mut i = 0;
-    while i < raw_input.len() {
-        let start = i;
-        while i < raw_input.len() && (raw_input[i] == b'-' || raw_input[i].is_ascii_digit()) {
-            i += 1;
-        }
-
-        if start < i {
-            target.push(atoi(&raw_input[start..i]));
-        }
-
-        i += 1;
-    }
+    let mut target = parse_ints::<4, i32>(raw_input);
     (target[0], target[1], target[2], target[3])
 }
 

@@ -307,7 +307,6 @@ pub fn parse_ints<
     nums.try_into().unwrap()
 }
 
-
 pub struct BidirectionalMap<U, V> {
     forward: HashMap<U, V>,
     reverse: HashMap<V, U>,
@@ -322,7 +321,7 @@ impl<V: Eq + std::hash::Hash + Clone> BidirectionalMap<usize, V> {
             reverse.insert(value.to_owned(), idx);
         }
 
-        Self{forward, reverse}
+        Self { forward, reverse }
     }
 
     pub fn get(&self, idx: usize) -> &V {
