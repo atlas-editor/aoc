@@ -1,9 +1,11 @@
+use std::collections::HashMap;
 use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Add, Index, IndexMut, Mul, Neg};
 use std::str::FromStr;
 
 use bstr::ByteSlice;
+use itertools::iproduct;
 use regex::Regex;
 
 pub fn ints<T: FromStr>(input: &str) -> Vec<T>
@@ -142,6 +144,42 @@ macro_rules! matrix {
 }
 
 #[derive(Debug, Clone)]
+pub struct Array3D<T> {
+    pub shape: (usize, usize, usize),
+    pub data: Vec<T>,
+}
+
+impl<T> Array3D<T> {
+    pub fn iter(&self) -> impl Iterator<Item = ((usize, usize, usize), &T)> {
+        iproduct!(0..self.shape.0, 0..self.shape.1, 0..self.shape.2).map(|pos| (pos, &self[pos]))
+    }
+}
+
+impl<T> Index<(usize, usize, usize)> for Array3D<T> {
+    type Output = T;
+
+    fn index(&self, index: (usize, usize, usize)) -> &Self::Output {
+        &self.data[self.shape.0 * self.shape.1 * index.2 + self.shape.1 * index.0 + index.1]
+    }
+}
+
+impl<T> IndexMut<(usize, usize, usize)> for Array3D<T> {
+    fn index_mut(&mut self, index: (usize, usize, usize)) -> &mut Self::Output {
+        &mut self.data[self.shape.0 * self.shape.1 * index.2 + self.shape.1 * index.0 + index.1]
+    }
+}
+
+#[macro_export]
+macro_rules! array3d {
+    [$val:expr; $X:expr, $Y:expr, $Z:expr] => {
+        Array3D{shape: ($X, $Y, $Z), data: vec![$val; $X*$Y*$Z]}
+    };
+    [$val:expr; $D:expr] => {
+        matrix![$val; $D, $D, $D]
+    };
+}
+
+#[derive(Debug, Clone)]
 pub struct ByteMap<T> {
     map: [T; 256],
 }
@@ -244,4 +282,54 @@ macro_rules! bgraph {
             _graph
         }
     };
+}
+
+pub fn parse_ints<
+    const N: usize,
+    T: From<u8> + Mul<Output = T> + Add<Output = T> + Neg<Output = T> + Debug,
+>(
+    input: &[u8],
+) -> [T; N] {
+    let mut nums: Vec<T> = Vec::with_capacity(N);
+    let mut i = 0;
+    while i < input.len() {
+        let start = i;
+        while i < input.len() && (input[i] == b'-' || input[i].is_ascii_digit()) {
+            i += 1;
+        }
+
+        if start < i {
+            nums.push(atoi(&input[start..i]));
+        }
+
+        i += 1;
+    }
+    nums.try_into().unwrap()
+}
+
+
+pub struct BidirectionalMap<U, V> {
+    forward: HashMap<U, V>,
+    reverse: HashMap<V, U>,
+}
+
+impl<V: Eq + std::hash::Hash + Clone> BidirectionalMap<usize, V> {
+    pub fn from_vec(values: Vec<V>) -> BidirectionalMap<usize, V> {
+        let mut forward = HashMap::new();
+        let mut reverse = HashMap::new();
+        for (idx, value) in values.iter().enumerate() {
+            forward.insert(idx, value.to_owned());
+            reverse.insert(value.to_owned(), idx);
+        }
+
+        Self{forward, reverse}
+    }
+
+    pub fn get(&self, idx: usize) -> &V {
+        &self.forward[&idx]
+    }
+
+    pub fn get_rev(&self, value: V) -> usize {
+        self.reverse[&value]
+    }
 }
