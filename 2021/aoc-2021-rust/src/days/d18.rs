@@ -28,65 +28,67 @@ pub fn p2(raw_input: &str) -> i32 {
         .unwrap()
 }
 
-fn parse_input(raw_input: &str) -> Vec<String> {
+type SnailfishNumber = String;
+
+fn parse_input(raw_input: &str) -> Vec<SnailfishNumber> {
     raw_input.lines().map(|x| x.to_string()).collect()
 }
 
-fn sum(reprs: Vec<String>) -> String {
-    reprs[1..]
+fn sum(sf_numbers: Vec<SnailfishNumber>) -> SnailfishNumber {
+    sf_numbers[1..]
         .iter()
-        .fold(reprs[0].clone(), |acc, x| reduce(add(acc, x.clone())))
+        .fold(sf_numbers[0].clone(), |acc, x| reduce(add(acc, x.clone())))
 }
 
-fn reduce(mut repr: String) -> String {
+fn reduce(mut sfn: SnailfishNumber) -> SnailfishNumber {
     loop {
-        if let Some(e) = explode(repr.clone()) {
-            repr = e;
+        if let Some(e) = explode(sfn.clone()) {
+            sfn = e;
             continue;
         }
 
-        if let Some(s) = split(repr.clone()) {
-            repr = s;
+        if let Some(s) = split(sfn.clone()) {
+            sfn = s;
             continue;
         }
         break;
     }
-    repr
+    sfn
 }
 
-fn split_pair(repr: String) -> Option<(String, String)> {
+fn split_pair(sfn: SnailfishNumber) -> Option<(SnailfishNumber, SnailfishNumber)> {
     let mut stack = 0;
-    for (idx, &e) in repr[1..].as_bytes().iter().enumerate() {
+    for (idx, &e) in sfn[1..].as_bytes().iter().enumerate() {
         if e == b'[' {
             stack += 1;
         } else if e == b']' {
             stack -= 1;
         } else if stack == 0 && e == b',' {
             return Some((
-                repr[1..idx + 1].to_string(),
-                repr[idx + 2..repr.len() - 1].to_string(),
+                sfn[1..idx + 1].to_string(),
+                sfn[idx + 2..sfn.len() - 1].to_string(),
             ));
         }
     }
     None
 }
 
-fn magnitude(repr: String) -> i32 {
-    if let Ok(a) = repr.parse::<i32>() {
+fn magnitude(sfn: SnailfishNumber) -> i32 {
+    if let Ok(a) = sfn.parse::<i32>() {
         a
     } else {
-        let (left, right) = split_pair(repr).unwrap();
+        let (left, right) = split_pair(sfn).unwrap();
         3 * magnitude(left) + 2 * magnitude(right)
     }
 }
 
-fn add(n0: String, n1: String) -> String {
-    format!("[{n0},{n1}]")
+fn add(sfn0: SnailfishNumber, sfn1: SnailfishNumber) -> SnailfishNumber {
+    format!("[{sfn0},{sfn1}]")
 }
 
-fn explode(n: String) -> Option<String> {
+fn explode(sfn: SnailfishNumber) -> Option<SnailfishNumber> {
     let mut stack = 0;
-    for (i, &e) in n.as_bytes().iter().enumerate() {
+    for (i, &e) in sfn.as_bytes().iter().enumerate() {
         if e == b'[' {
             stack += 1;
         } else if e == b']' {
@@ -94,46 +96,48 @@ fn explode(n: String) -> Option<String> {
         }
 
         if stack == 5 {
-            let end = n[i..].find(|x| x == ']').unwrap() + i;
+            let end = sfn[i..].find(|x| x == ']')? + i;
 
-            let pair = n[i + 1..end].split_once(',').unwrap();
+            let pair = sfn[i + 1..end].split_once(',')?;
             let (a0, a1) = (
                 pair.0.parse::<i32>().unwrap(),
                 pair.1.parse::<i32>().unwrap(),
             );
 
-            let mut left = n[..i].to_string();
-            let mut right = n[end + 1..].to_string();
+            let mut left = sfn[..i].to_string();
+            let mut right = sfn[end + 1..].to_string();
 
-            let re = Regex::new(r"\d+").unwrap();
+            let int_re = Regex::new(r"\d+").unwrap();
 
-            if let Some(m) = re.find_iter(left.as_str()).last() {
+            if let Some(m) = int_re.find_iter(left.as_str()).last() {
                 let val = m.as_str().parse::<i32>().unwrap() + a0;
                 left = format!("{}{val}{}", &left[..m.start()], &left[m.end()..]);
             }
 
-            if let Some(m) = re.find(right.as_str()) {
+            if let Some(m) = int_re.find(right.as_str()) {
                 let val = m.as_str().parse::<i32>().unwrap() + a1;
                 right = format!("{}{val}{}", &right[..m.start()], &right[m.end()..]);
             }
+
             return Some(format!("{}0{}", left, right));
         }
     }
     None
 }
 
-fn split(n: String) -> Option<String> {
-    let re = Regex::new(r"\d+").unwrap();
-    if let Some(m) = re
-        .clone()
-        .find_iter(n.as_str())
-        .find(|m| m.as_str().parse::<i32>().unwrap() >= 10)
-    {
-        let n0 = m.as_str().parse::<i32>().unwrap() / 2;
-        let n1 = (m.as_str().parse::<i32>().unwrap() as f64 / 2.0).ceil() as i32;
-        Some(format!("{}[{n0},{n1}]{}", &n[..m.start()], &n[m.end()..]))
-    } else {
-        None
+fn split(sfn: SnailfishNumber) -> Option<SnailfishNumber> {
+    let two_digit_re = Regex::new(r"\d\d").unwrap();
+    match two_digit_re.find(sfn.as_str()) {
+        None => None,
+        Some(m) => {
+            let n0 = m.as_str().parse::<i32>().unwrap() / 2;
+            let n1 = (m.as_str().parse::<i32>().unwrap() as f64 / 2.0).ceil() as i32;
+            Some(format!(
+                "{}[{n0},{n1}]{}",
+                &sfn[..m.start()],
+                &sfn[m.end()..]
+            ))
+        }
     }
 }
 
