@@ -98,7 +98,7 @@ impl Image {
             for r in -1..(self.image.r_size() as i32) + 1 {
                 for c in -1..(self.image.c_size() as i32) + 1 {
                     let mut neighborhood = [self.infinite_pixel; 9];
-                    for (idx, n) in neighbors(r, c, self.image.r_size(), self.image.c_size()) {
+                    for (idx, n) in neighborhood9(r, c, self.image.r_size(), self.image.c_size()) {
                         neighborhood[idx] = self.image[n]
                     }
                     data.push(ie_algorithm[neighborhood])
@@ -130,7 +130,7 @@ impl Image {
     }
 }
 
-fn neighbors(
+fn neighborhood9(
     r: i32,
     c: i32,
     r_size: usize,
