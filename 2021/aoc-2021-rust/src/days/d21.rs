@@ -1,6 +1,6 @@
+use ahash::{HashMap, HashMapExt};
 use bstr::ByteSlice;
 use itertools::iproduct;
-use std::collections::HashMap;
 use std::ops::{Add, AddAssign};
 
 pub fn p1(raw_input: &[u8]) -> u32 {
