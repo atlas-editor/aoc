@@ -1,16 +1,15 @@
 use crate::days::utils::Matrix;
 use bstr::ByteSlice;
 use itertools::Itertools;
-use std::fmt::{Display, Formatter};
 use std::ops::Index;
 
-pub fn p1(raw_input: &[u8]) -> usize {
+pub fn p1(raw_input: &[u8]) -> PixelAmount {
     let (ie_algorithm, mut input_image) = parse_input(raw_input);
     input_image.apply_ie_algorithm(&ie_algorithm, 2);
     input_image.lit_pixels()
 }
 
-pub fn p2(raw_input: &[u8]) -> usize {
+pub fn p2(raw_input: &[u8]) -> PixelAmount {
     let (ie_algorithm, mut input_image) = parse_input(raw_input);
     input_image.apply_ie_algorithm(&ie_algorithm, 50);
     input_image.lit_pixels()
@@ -68,6 +67,12 @@ impl Index<[Pixel; 9]> for IEAlgorithm {
     }
 }
 
+#[derive(Debug, PartialEq)]
+pub enum PixelAmount {
+    Finite(usize),
+    Infinite,
+}
+
 #[derive(Debug)]
 struct Image {
     image: Matrix<Pixel>,
@@ -85,46 +90,51 @@ impl Image {
         }
     }
 
-    fn apply_ie_algorithm_once(&mut self, ie_algorithm: &IEAlgorithm) {
-        let mut new_data =
-            Vec::with_capacity((self.image.r_size() + 2) * (self.image.c_size() + 2));
-        for i in -1..(self.image.r_size() as i32) + 1 {
-            for j in -1..(self.image.c_size() as i32) + 1 {
-                let mut neighborhood = [self.infinite_pixel; 9];
-                for (idx, n) in neighbors(self.image.r_size(), self.image.c_size(), (i, j)) {
-                    neighborhood[idx] = self.image[n]
-                }
-                new_data.push(ie_algorithm[neighborhood])
-            }
-        }
-        let new_image = Matrix::from_shape_and_data(
-            (self.image.r_size() + 2, self.image.c_size() + 2),
-            new_data,
-        );
-
-        self.image = new_image;
-        self.infinite_pixel = ie_algorithm.full(self.infinite_pixel);
-    }
-
     fn apply_ie_algorithm(&mut self, ie_algorithm: &IEAlgorithm, count: usize) {
+        let mut data = Vec::with_capacity(
+            (self.image.r_size() + count * 2) * (self.image.c_size() + count * 2),
+        );
         for _ in 0..count {
-            self.apply_ie_algorithm_once(ie_algorithm);
+            for r in -1..(self.image.r_size() as i32) + 1 {
+                for c in -1..(self.image.c_size() as i32) + 1 {
+                    let mut neighborhood = [self.infinite_pixel; 9];
+                    for (idx, n) in neighbors(r, c, self.image.r_size(), self.image.c_size()) {
+                        neighborhood[idx] = self.image[n]
+                    }
+                    data.push(ie_algorithm[neighborhood])
+                }
+            }
+
+            let new_image = Matrix::from_shape_and_data(
+                (self.image.r_size() + 2, self.image.c_size() + 2),
+                data.clone(),
+            );
+
+            self.image = new_image;
+            self.infinite_pixel = ie_algorithm.full(self.infinite_pixel);
+            data.clear();
         }
     }
 
-    fn lit_pixels(&self) -> usize {
-        self.image
-            .data
-            .iter()
-            .filter(|x| matches!(x, Pixel::Light))
-            .count()
+    fn lit_pixels(&self) -> PixelAmount {
+        match self.infinite_pixel {
+            Pixel::Light => PixelAmount::Infinite,
+            Pixel::Dark => PixelAmount::Finite(
+                self.image
+                    .data
+                    .iter()
+                    .filter(|x| matches!(x, Pixel::Light))
+                    .count(),
+            ),
+        }
     }
 }
 
 fn neighbors(
-    r: usize,
-    c: usize,
-    index: (i32, i32),
+    r: i32,
+    c: i32,
+    r_size: usize,
+    c_size: usize,
 ) -> impl Iterator<Item = (usize, (usize, usize))> {
     [
         (-1, -1),
@@ -139,8 +149,8 @@ fn neighbors(
     ]
     .iter()
     .enumerate()
-    .map(move |(idx, x)| (idx, (x.0 + index.0, x.1 + index.1)))
-    .filter(move |(idx, x)| x.0 >= 0 && x.0 < r as i32 && x.1 >= 0 && x.1 < c as i32)
+    .map(move |(idx, x)| (idx, (x.0 + r, x.1 + c)))
+    .filter(move |(idx, x)| x.0 >= 0 && x.0 < r_size as i32 && x.1 >= 0 && x.1 < c_size as i32)
     .map(|(idx, y)| (idx, (y.0 as usize, y.1 as usize)))
 }
 
@@ -150,12 +160,12 @@ mod tests {
 
     #[test]
     fn p1_works() {
-        assert_eq!(p1(raw_input()), 35);
+        assert_eq!(p1(raw_input()), PixelAmount::Finite(35));
     }
 
     #[test]
     fn p2_works() {
-        assert_eq!(p2(raw_input()), 3351);
+        assert_eq!(p2(raw_input()), PixelAmount::Finite(3351));
     }
 
     fn raw_input<'a>() -> &'a [u8] {
