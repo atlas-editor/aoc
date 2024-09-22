@@ -1,0 +1,33 @@
+import itertools
+import math
+import pathlib
+import sys
+from collections import Counter, deque, defaultdict
+from copy import deepcopy
+
+
+from utils import *
+
+sys.setrecursionlimit(10**6)
+
+# INPUT = """"""  # test input
+INPUT = open(f"inputs/{pathlib.Path(__file__).stem}.in").read().strip()
+
+LINES = INPUT.split("\n")
+# INTS = [int(i) for i in INPUT.split("\n")]
+PARTS = INPUT.split("\n\n")
+MATRIX = [[c for c in row] for row in LINES]
+R = len(MATRIX)
+C = len(MATRIX[0])
+
+
+def p1():
+    return
+
+def p2():
+    return
+
+
+if __name__ == '__main__':
+    print(f"part1={p1()}")
+    print(f"part2={p2()}")
