@@ -126,16 +126,20 @@ fn simulate_quantum_game(
     }
 
     let mut score = Score { a: 0, b: 0 };
-    for (i, j, k) in iproduct!(1..4, 1..4, 1..4) {
-        let new_position_a = (position_a + (i + j + k) - 1) % 10 + 1;
-        score += simulate_quantum_game(
-            position_b,
-            score_b,
-            new_position_a,
-            score_a + new_position_a as u64,
-            cache,
-        )
-        .flip();
+    for i in 1..4 {
+        for j in 1..4 {
+            for k in 1..4 {
+                let new_position_a = (position_a + (i + j + k) - 1) % 10 + 1;
+                score += simulate_quantum_game(
+                    position_b,
+                    score_b,
+                    new_position_a,
+                    score_a + new_position_a as u64,
+                    cache,
+                )
+                .flip();
+            }
+        }
     }
 
     cache.insert(state, score);

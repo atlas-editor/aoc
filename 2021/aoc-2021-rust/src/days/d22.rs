@@ -1,7 +1,7 @@
 use crate::array3d;
 use crate::days::utils::{parse_ints, Array3D};
 use bstr::ByteSlice;
-use itertools::{iproduct, Itertools};
+use itertools::Itertools;
 
 pub fn p1(raw_input: &[u8]) -> i64 {
     let init_region = Cuboid::from_endpoints(&[-50, 50, -50, 50, -50, 50]);
@@ -115,8 +115,12 @@ impl Region {
         let k0 = self.z_coordinates.binary_search(&cuboid.z.0).unwrap();
         let k1 = self.z_coordinates.binary_search(&cuboid.z.1).unwrap();
 
-        for (i, j, k) in iproduct!(i0..i1, j0..j1, k0..k1) {
-            self.grid[(i, j, k)] = value;
+        for i in i0..i1 {
+            for j in j0..j1 {
+                for k in k0..k1 {
+                    self.grid[(i, j, k)] = value;
+                }
+            }
         }
     }
 
@@ -135,16 +139,17 @@ impl Region {
     }
 
     fn on(&self) -> i64 {
-        self.grid
-            .iter()
-            .filter_map(|((i, j, k), is_on)| {
-                if *is_on {
-                    Some(self.area(i, j, k))
-                } else {
-                    None
+        let mut on = 0;
+        for i in 0..self.grid.shape.0 {
+            for j in 0..self.grid.shape.1 {
+                for k in 0..self.grid.shape.2 {
+                    if self.grid[(i, j, k)] {
+                        on += self.area(i, j, k);
+                    }
                 }
-            })
-            .sum()
+            }
+        }
+        on
     }
 }
 
