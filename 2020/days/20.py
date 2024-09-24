@@ -112,7 +112,7 @@ Tile 3079:
 ..#.###...
 ..#.......
 ..#.###..."""  # test input
-INPUT = open(f"inputs/{pathlib.Path(__file__).stem}.in").read().strip()
+# INPUT = open(f"inputs/{pathlib.Path(__file__).stem}.in").read().strip()
 
 PARTS = INPUT.split("\n\n")
 

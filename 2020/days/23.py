@@ -78,5 +78,6 @@ def p2():
 
 
 if __name__ == '__main__':
-    print(f"part1={p1()}")
-    print(f"part2={p2()}")
+    assert p1() == "67384529"
+    assert p2() == 149245887792
+    print("day 23 ok")
