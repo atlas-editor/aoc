@@ -2,7 +2,7 @@ use crate::array3d;
 use crate::days::utils::{parse_ints, Array3D};
 use bstr::ByteSlice;
 use itertools::Itertools;
-
+use rayon::prelude::*;
 pub fn p1(raw_input: &[u8]) -> i64 {
     let init_region = Cuboid::from_endpoints(&[-50, 50, -50, 50, -50, 50]);
     let reboot_steps = parse_input(raw_input)
@@ -10,16 +10,16 @@ pub fn p1(raw_input: &[u8]) -> i64 {
         .filter(|(_, cuboid)| cuboid.contained_in(&init_region))
         .collect_vec();
 
-    p(reboot_steps)
+    p(reboot_steps).on()
 }
 
 pub fn p2(raw_input: &[u8]) -> i64 {
     let reboot_steps = parse_input(raw_input);
 
-    p(reboot_steps)
+    p(reboot_steps).par_on()
 }
 
-fn p(reboot_steps: Vec<(bool, Cuboid)>) -> i64 {
+fn p(reboot_steps: Vec<(bool, Cuboid)>) -> Region {
     let mut region =
         Region::from_cuboids(&reboot_steps.iter().map(|(_, cuboid)| cuboid).collect_vec());
 
@@ -27,7 +27,7 @@ fn p(reboot_steps: Vec<(bool, Cuboid)>) -> i64 {
         region.set(&cuboid, flag);
     }
 
-    region.on()
+    region
 }
 
 fn parse_line(raw_line: &[u8]) -> (bool, Cuboid) {
@@ -150,6 +150,23 @@ impl Region {
             }
         }
         on
+    }
+
+    fn par_on(&self) -> i64 {
+        (0..self.grid.shape.0 * self.grid.shape.1 * self.grid.shape.2)
+            .into_par_iter()
+            .filter_map(|index| {
+                let i = index / (self.grid.shape.1 * self.grid.shape.2);
+                let j = (index / self.grid.shape.2) % self.grid.shape.1;
+                let k = index % self.grid.shape.2;
+
+                if self.grid[(i, j, k)] {
+                    Some(self.area(i, j, k))
+                } else {
+                    None
+                }
+            })
+            .sum()
     }
 }
 
