@@ -78,6 +78,6 @@ macro_rules! run {
         let p1_result = days::$day::p1(&raw_input);
         let p2_result = days::$day::p2(&raw_input);
 
-        println!("part 1 = {}\npart 2 = {}", p1_result, p2_result);
+        println!("part 1 = {:?}\npart 2 = {:?}", p1_result, p2_result);
     }};
 }
