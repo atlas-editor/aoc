@@ -74,8 +74,6 @@ fn simulate_simple_game(mut player_a: Player, mut player_b: Player) -> u32 {
     }
 }
 
-type QuantumState = (u8, u64, u8, u64);
-
 #[derive(Clone, Copy)]
 struct Score {
     a: u64,
