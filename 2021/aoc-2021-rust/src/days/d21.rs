@@ -110,12 +110,7 @@ impl AddAssign<Score> for Score {
     }
 }
 
-fn hash(
-    position_a: usize,
-    score_a: usize,
-    position_b: usize,
-    score_b: usize,
-) -> usize {
+fn hash(position_a: usize, score_a: usize, position_b: usize, score_b: usize) -> usize {
     position_a + (score_a << 4) + (position_b << 9) + (score_b << 13)
 }
 
