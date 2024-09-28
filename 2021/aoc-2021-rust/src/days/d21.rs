@@ -1,7 +1,5 @@
-use ahash::{HashMap, HashMapExt};
 use bstr::ByteSlice;
-use itertools::iproduct;
-use std::ops::{Add, AddAssign};
+use std::ops::AddAssign;
 
 pub fn p1(raw_input: &[u8]) -> u32 {
     let (a, b) = raw_input.split_once_str("\n").unwrap();
@@ -12,7 +10,8 @@ pub fn p1(raw_input: &[u8]) -> u32 {
 
 pub fn p2(raw_input: &[u8]) -> u64 {
     let (a, b) = raw_input.split_once_str("\n").unwrap();
-    let mut cache = HashMap::new();
+    // 251371 == 10 + (30 << 4) + (10 << 9) + (30 << 13) + 1
+    let mut cache = [Score { a: 0, b: 0 }; 251371];
     simulate_quantum_game(a[a.len() - 1] - 48, 0, b[b.len() - 1] - 48, 0, &mut cache).max()
 }
 
@@ -98,6 +97,10 @@ impl Score {
             b: self.a,
         }
     }
+
+    fn is_nonzero(&self) -> bool {
+        self.a != 0 || self.b != 0
+    }
 }
 
 impl AddAssign<Score> for Score {
@@ -107,17 +110,33 @@ impl AddAssign<Score> for Score {
     }
 }
 
+fn hash(
+    position_a: usize,
+    score_a: usize,
+    position_b: usize,
+    score_b: usize,
+) -> usize {
+    position_a + (score_a << 4) + (position_b << 9) + (score_b << 13)
+}
+
 fn simulate_quantum_game(
     position_a: u8,
-    score_a: u64,
+    score_a: u8,
     position_b: u8,
-    score_b: u64,
-    mut cache: &mut HashMap<QuantumState, Score>,
+    score_b: u8,
+    cache: &mut [Score; 251371],
 ) -> Score {
-    let state: QuantumState = (position_a, score_a, position_b, score_b);
-    if let Some(k) = cache.get(&state) {
-        return *k;
+    let state = hash(
+        position_a as usize,
+        score_a as usize,
+        position_b as usize,
+        score_b as usize,
+    );
+    let cached_val = cache[state];
+    if cached_val.is_nonzero() {
+        return cached_val;
     }
+
     if score_a >= 21 {
         return Score { a: 1, b: 0 };
     }
@@ -134,7 +153,7 @@ fn simulate_quantum_game(
                     position_b,
                     score_b,
                     new_position_a,
-                    score_a + new_position_a as u64,
+                    score_a + new_position_a,
                     cache,
                 )
                 .flip();
@@ -142,7 +161,7 @@ fn simulate_quantum_game(
         }
     }
 
-    cache.insert(state, score);
+    cache[state] = score;
     score
 }
 
