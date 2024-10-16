@@ -9,11 +9,12 @@ use std::collections::BinaryHeap;
 3 == D
 4 == .
 
-[0, 11) hallway
-[11, 15) room level 1
-[15, 19) room level 2
-[19, 23) room level 3
-[23, 27) room level 4
+0..11 hallway
+[2, 4, 6, 8] room entries
+11..15 room level 1
+15..19 room level 2
+19..23 room level 3
+23..27 room level 4
  */
 
 const ENERGY: [i32; 4] = [1, 10, 100, 1000];
