@@ -14,18 +14,6 @@ pub fn p2(raw_input: &[u8]) -> i64 {
     minmax.0
 }
 
-#[derive(Debug, Clone, PartialEq)]
-enum Op {
-    Inp,
-    Mul((Box<Expression>, Box<Expression>)),
-    Add((Box<Expression>, Box<Expression>)),
-    Mod((Box<Expression>, Box<Expression>)),
-    Div((Box<Expression>, Box<Expression>)),
-    Eql((Box<Expression>, Box<Expression>)),
-    Const(i64),
-    Var(u8),
-}
-
 fn parse_second_argument(second: Option<Vec<u8>>) -> Option<Expression> {
     if [b'w', b'x', b'y', b'z'].contains(&second.clone()?[0]) {
         Some(Expression::new_var(second?[0]))
@@ -146,7 +134,6 @@ fn simplify_expression(e: Expression) -> Expression {
     match e.clone().op {
         // e, f -- expressions
         // C, D -- constants
-        Op::Inp => e,
         Op::Mul((lhs, rhs)) => {
             if lhs.op == Op::Const(0) || rhs.op == Op::Const(0) {
                 // 0 * e == 0
@@ -271,6 +258,17 @@ fn simplify_expression(e: Expression) -> Expression {
         }
         _ => e,
     }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+enum Op {
+    Mul((Box<Expression>, Box<Expression>)),
+    Add((Box<Expression>, Box<Expression>)),
+    Mod((Box<Expression>, Box<Expression>)),
+    Div((Box<Expression>, Box<Expression>)),
+    Eql((Box<Expression>, Box<Expression>)),
+    Const(i64),
+    Var(u8),
 }
 
 #[derive(Clone, Debug, PartialEq)]
