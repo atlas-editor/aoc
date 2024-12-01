@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -24,9 +23,9 @@ func p1(input string) int {
 	left, right := []int{}, []int{}
 
 	for _, line := range lines {
-		tmp := ints(line)
-		left = append(left, tmp[0])
-		right = append(right, tmp[1])
+		tmp := strings.Fields(line)
+		left = append(left, atoi(tmp[0]))
+		right = append(right, atoi(tmp[1]))
 	}
 
 	slices.Sort(left)
@@ -45,9 +44,9 @@ func p2(input string) int {
 	left, right := []int{}, map[int]int{}
 
 	for _, line := range lines {
-		tmp := ints(line)
-		left = append(left, tmp[0])
-		right[tmp[1]]++
+		tmp := strings.Fields(line)
+		left = append(left, atoi(tmp[0]))
+		right[atoi(tmp[1])]++
 	}
 
 	similarity := 0
@@ -62,13 +61,9 @@ func p2(input string) int {
 utils
 */
 
-func ints(s string) (r []int) {
-	p := regexp.MustCompile(`-?\d+`)
-	for _, e := range p.FindAllString(s, -1) {
-		i, _ := strconv.Atoi(e)
-		r = append(r, i)
-	}
-	return
+func atoi(s string) int {
+	r, _ := strconv.Atoi(s)
+	return r
 }
 
 func abs(x int) int {
