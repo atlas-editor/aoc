@@ -40,8 +40,7 @@ outer:
 	for _, line := range lines {
 		nums := ints(line)
 		for i := range len(nums) {
-			tmp := slices.Clone(nums)
-			report := append(tmp[:i], tmp[i+1:]...)
+			report := slices.Delete(slices.Clone(nums), i, i+1)
 			if isSafeIncreasing(report) || isSafeDecreasing(report) {
 				safe++
 				continue outer
