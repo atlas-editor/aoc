@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"slices"
 	"strings"
 )
@@ -23,14 +22,12 @@ func p1(input string) int {
 		return b
 	})
 
-	s := findHorizontal(m) + findHorizontal(rotate(m, 1))
-
-	//diagonal
+	s := 0
 	R, C := len(m), len(m[0])
 	for r := range len(m) {
 		for c := range len(m[0]) {
 		outer:
-			for _, d := range []vec{{-1, 1}, {-1, -1}, {1, -1}, {1, 1}} {
+			for _, d := range []vec{{-1, 1}, {-1, -1}, {1, -1}, {1, 1}, {-1, 0}, {0, 1}, {1, 0}, {0, -1}} {
 				curr := vec{r, c}
 				for i := range 4 {
 					rr, cc := curr[0], curr[1]
@@ -71,20 +68,6 @@ func p2(input string) int {
 				s++
 			}
 		}
-	}
-
-	return s
-}
-
-func findHorizontal(matrix [][]byte) int {
-	xmas := regexp.MustCompile(`XMAS`)
-	s := 0
-	for _, row := range matrix {
-		s += len(xmas.FindAll(row, -1))
-
-		tmp := slices.Clone(row)
-		slices.Reverse(tmp)
-		s += len(xmas.FindAll(tmp, -1))
 	}
 
 	return s
