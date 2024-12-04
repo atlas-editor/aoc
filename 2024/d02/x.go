@@ -9,8 +9,7 @@ import (
 )
 
 func main() {
-	path := "input.txt"
-	//path = "sample.txt"
+	path := os.Args[1]
 
 	data, _ := os.ReadFile(path)
 	input := strings.TrimSpace(string(data))
@@ -40,38 +39,12 @@ func p2(input string) int {
 outer:
 	for _, line := range lines {
 		nums := ints(line)
-
-		// 58  54  52  49  46  43
-		//   -4  -2  -3  -3  -3
-
-		if nums[0] == 58 {
-			fmt.Println("")
-		}
-
-		b := false
-		if isAlmostSafeIncreasing(nums) || isAlmostSafeDecreasing(nums) {
-			safe++
-			b = true
-			//continue outer
-		}
-
 		for i := range len(nums) {
 			report := slices.Delete(slices.Clone(nums), i, i+1)
 			if isSafeIncreasing(report) || isSafeDecreasing(report) {
 				safe++
-				if !b {
-					fmt.Println("not b")
-					fmt.Println(nums)
-					panic("")
-				}
 				continue outer
 			}
-		}
-
-		if b {
-			fmt.Println("b")
-			fmt.Println(nums)
-			panic("")
 		}
 	}
 
@@ -90,56 +63,6 @@ func isSafeIncreasing(nums []int) bool {
 func isSafeDecreasing(nums []int) bool {
 	slices.Reverse(nums)
 	return isSafeIncreasing(nums)
-}
-
-func isAlmostSafeIncreasing(nums []int) bool {
-	var invalidIncr []int
-	var diffs []int
-
-	for i := range len(nums) - 1 {
-		diff := nums[i+1] - nums[i]
-		diffs = append(diffs, diff)
-
-		if !(diff >= 1 && diff <= 3) {
-			invalidIncr = append(invalidIncr, i)
-		}
-	}
-
-	switch len(invalidIncr) {
-	case 0:
-		return true
-	case 1:
-		idx := invalidIncr[0]
-
-		idxM1 := 0
-		if idx != 0 {
-			idxM1 = diffs[idx-1]
-		}
-
-		idxP0 := diffs[idx]
-
-		idxP1 := 0
-		if idx != len(diffs)-1 {
-			idxP1 = diffs[idx+1]
-		}
-		if (idxM1+idxP0 >= 1 && idxM1+idxP0 <= 3) || (idxP0+idxP1 >= 1 && idxP0+idxP1 <= 3) {
-			fmt.Println("one wrong", nums)
-			return true
-		}
-	case 2:
-		idx0, idx1 := invalidIncr[0], invalidIncr[1]
-		if idx0 == idx1-1 && diffs[idx0]+diffs[idx0+1] >= 1 && diffs[idx0]+diffs[idx0+1] <= 3 {
-			fmt.Println("two wrong", nums)
-			return true
-		}
-	}
-
-	return false
-}
-
-func isAlmostSafeDecreasing(nums []int) bool {
-	slices.Reverse(nums)
-	return isAlmostSafeIncreasing(nums)
 }
 
 /*
