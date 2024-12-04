@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"slices"
 	"strings"
 )
 
@@ -95,31 +94,4 @@ func readMatrix[T any](s string, transform func(byte) T) [][]T {
 	}
 
 	return matrix
-}
-
-func transpose[T any](m [][]T) [][]T {
-	R, C := len(m), len(m[0])
-	m2 := make([][]T, C)
-	for i := range C {
-		m2[i] = make([]T, R)
-	}
-
-	for r := range R {
-		for c := range C {
-			m2[c][r] = m[r][c]
-		}
-	}
-
-	return m2
-}
-
-func rotate[T any](m [][]T, n int) [][]T {
-	for range n % 4 {
-		m = transpose(m)
-
-		for c := range len(m) {
-			slices.Reverse(m[c])
-		}
-	}
-	return m
 }
