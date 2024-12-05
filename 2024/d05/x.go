@@ -31,7 +31,7 @@ func p2(input string) int {
 func solve(input string) (int, int) {
 	parts := strings.Split(input, "\n\n")
 
-	rules := map[pt]bool{}
+	rules := set[pt]{}
 	for _, r := range strings.Split(parts[0], "\n") {
 		tmp := strings.Split(r, "|")
 		rules[pt{atoi(tmp[0]), atoi(tmp[1])}] = true
@@ -57,7 +57,7 @@ func solve(input string) (int, int) {
 	return correct, incorrect
 }
 
-func sortByRules(nums []int, rules map[pt]bool) []int {
+func sortByRules(nums []int, rules set[pt]) []int {
 	numsClone := slices.Clone(nums)
 	slices.SortFunc(numsClone, func(a, b int) int {
 		if v, ok := rules[pt{a, b}]; v && ok {
@@ -74,6 +74,8 @@ utils
 */
 
 type pt [2]int
+
+type set[T comparable] map[T]bool
 
 func atoi(s string) int {
 	r, _ := strconv.Atoi(s)
