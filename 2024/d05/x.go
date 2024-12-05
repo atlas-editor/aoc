@@ -19,69 +19,54 @@ func main() {
 }
 
 func p1(input string) int {
-	_, correct, _ := parse(input)
-
-	s := 0
-	for _, c := range correct {
-		s += c[len(c)/2]
-	}
-
-	return s
+	correct, _ := solve(input)
+	return correct
 }
 
 func p2(input string) int {
-	rules, _, incorrect := parse(input)
-
-	for i := range incorrect {
-		slices.SortFunc(incorrect[i], func(a, b int) int {
-			for _, r := range rules {
-				if r[0] == a && r[1] == b {
-					return -1
-				}
-			}
-			return 1
-		})
-	}
-
-	s := 0
-	for _, i := range incorrect {
-		s += i[len(i)/2]
-	}
-
-	return s
+	_, incorrect := solve(input)
+	return incorrect
 }
 
-func parse(input string) ([]pt, [][]int, [][]int) {
+func solve(input string) (int, int) {
 	parts := strings.Split(input, "\n\n")
 
-	rules := []pt{}
+	rules := map[pt]bool{}
 	for _, r := range strings.Split(parts[0], "\n") {
 		tmp := strings.Split(r, "|")
-		rules = append(rules, pt{atoi(tmp[0]), atoi(tmp[1])})
+		rules[pt{atoi(tmp[0]), atoi(tmp[1])}] = true
 	}
 
-	correct := [][]int{}
-	incorrect := [][]int{}
-outer:
+	correct := 0
+	incorrect := 0
 	for _, p := range strings.Split(parts[1], "\n") {
 		nums := []int{}
 		for _, tmp := range strings.Split(p, ",") {
 			nums = append(nums, atoi(tmp))
 		}
-		for i := 0; i < len(nums); i++ {
-			for j := i + 1; j < len(nums); j++ {
-				for _, r := range rules {
-					if r[0] == nums[j] && r[1] == nums[i] {
-						incorrect = append(incorrect, nums)
-						continue outer
-					}
-				}
-			}
+
+		sorted := sortByRules(nums, rules)
+		middle := sorted[len(sorted)/2]
+		if slices.Equal(nums, sorted) {
+			correct += middle
+		} else {
+			incorrect += middle
 		}
-		correct = append(correct, nums)
 	}
 
-	return rules, correct, incorrect
+	return correct, incorrect
+}
+
+func sortByRules(nums []int, rules map[pt]bool) []int {
+	numsClone := slices.Clone(nums)
+	slices.SortFunc(numsClone, func(a, b int) int {
+		if v, ok := rules[pt{a, b}]; v && ok {
+			return -1
+		}
+		return 1
+	})
+
+	return numsClone
 }
 
 /*
