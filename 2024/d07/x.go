@@ -25,17 +25,30 @@ func p2(input string) int {
 	return solve(input, true)
 }
 
+type result struct {
+	ok     bool
+	target int
+}
+
 func solve(input string, useConcat bool) int {
-	s := 0
-	for _, line := range strings.Split(input, "\n") {
+	c := make(chan result)
+	lines := strings.Split(input, "\n")
+	for _, line := range lines {
 		tmp := strings.Split(line, ": ")
 		target := atoi(tmp[0])
 		nums := []int{}
 		for _, n := range strings.Fields(tmp[1]) {
 			nums = append(nums, atoi(n))
 		}
-		if isPossible(target, nums, useConcat) {
-			s += target
+		go func() {
+			c <- result{isPossible(target, nums, useConcat), target}
+		}()
+	}
+
+	s := 0
+	for range len(lines) {
+		if r := <-c; r.ok {
+			s += r.target
 		}
 	}
 	return s
