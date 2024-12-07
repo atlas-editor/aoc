@@ -56,10 +56,9 @@ func parse(input string) ([][]byte, vec) {
 	})
 
 	start := vec{0, 0}
-	R, C := len(m), len(m[0])
 outer:
-	for r := range R {
-		for c := range C {
+	for r := range len(m) {
+		for c := range len(m[0]) {
 			if m[r][c] == '^' {
 				start = vec{r, c}
 				break outer
@@ -76,30 +75,35 @@ type state struct {
 	dir vec
 }
 
-func onLoop(m [][]byte, start, obstruction vec) (bool, map[vec]bool) {
-	seenPt := map[vec]bool{}
-	seenState := map[state]bool{}
-	curr := start
-	dir := vec{-1, 0}
+func extractPts(states set[state]) set[vec] {
+	pts := set[vec]{}
+	for s := range states {
+		pts[s.pos] = true
+	}
+	return pts
+}
+
+func onLoop(m [][]byte, start, obstruction vec) (bool, set[vec]) {
+	seen := set[state]{}
+	curr := state{start, vec{-1, 0}}
 	for {
-		if _, ok := seenState[state{curr, dir}]; ok {
-			return true, map[vec]bool{}
+		if _, ok := seen[curr]; ok {
+			return true, set[vec]{}
 		}
 
-		seenPt[curr] = true
-		seenState[state{curr, dir}] = true
+		seen[curr] = true
 
-		next := curr.add(dir)
-		r, c := next[0], next[1]
+		nextPos := curr.pos.add(curr.dir)
+		r, c := nextPos[0], nextPos[1]
 
-		if !(0 <= r && r < len(m) && c >= 0 && c < len(m[0])) {
-			return false, seenPt
+		if !(0 <= r && r < len(m) && 0 <= c && c < len(m[0])) {
+			return false, extractPts(seen)
 		}
 
-		if m[r][c] == '#' || next == obstruction {
-			dir = dir.rotate(3)
+		if m[r][c] == '#' || nextPos == obstruction {
+			curr.dir = curr.dir.rotate(3)
 		} else {
-			curr = next
+			curr.pos = nextPos
 		}
 	}
 
@@ -122,6 +126,8 @@ func readMatrix[T any](s string, transform func(byte) T) [][]T {
 
 	return matrix
 }
+
+type set[T comparable] map[T]bool
 
 type vec [2]int
 
