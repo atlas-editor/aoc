@@ -64,11 +64,7 @@ func isPossible(target int, nums []int, useConcat bool) bool {
 			return total == target
 		}
 
-		c := false
-		if useConcat {
-			c = f(idx+1, concat(total, nums[idx]))
-		}
-		return f(idx+1, total+nums[idx]) || f(idx+1, total*nums[idx]) || c
+		return f(idx+1, total+nums[idx]) || f(idx+1, total*nums[idx]) || (useConcat && f(idx+1, concat(total, nums[idx])))
 	}
 
 	return f(1, nums[0])
