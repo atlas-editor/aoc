@@ -16,9 +16,6 @@ func main() {
 
 	fmt.Println(p1(input))
 	fmt.Println(p2(input))
-
-	perf(p1, input)
-	perf(p2, input)
 }
 
 func p1(input string) int {
