@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"regexp"
 	"slices"
 	"strconv"
@@ -101,6 +102,54 @@ func rotate[T any](m [][]T, n int) [][]T {
 		}
 	}
 	return m
+}
+
+func jordanGauss(A [][]float64, b []float64) ([]float64, bool) {
+	mul := func(r []float64, c float64) []float64 {
+		res := []float64{}
+		for _, e := range r {
+			res = append(res, c*e)
+		}
+		return res
+	}
+
+	add := func(r []float64, t []float64) []float64 {
+		res := []float64{}
+		for i := 0; i < len(r); i++ {
+			res = append(res, r[i]+t[i])
+		}
+		return res
+	}
+
+	R := len(A)
+
+	for i := range R {
+		A[i] = append(A[i], b[i])
+	}
+
+	for i := 0; i < R; i++ {
+		A[i] = mul(A[i], 1/A[i][i])
+		for j := i + 1; j < R; j++ {
+			A[j] = add(A[j], mul(A[i], -A[j][i]))
+		}
+	}
+
+	for i := R - 1; i >= 0; i-- {
+		A[i] = mul(A[i], 1/A[i][i])
+		for j := i - 1; j >= 0; j-- {
+			A[j] = add(A[j], mul(A[i], -A[j][i]))
+		}
+	}
+
+	res := []float64{}
+	for i := 0; i < R; i++ {
+		if math.IsNaN(A[i][R]) || math.IsInf(A[i][R], +1) || math.IsInf(A[i][R], -1) {
+			return []float64{}, false
+		}
+		res = append(res, A[i][R])
+	}
+
+	return res, true
 }
 
 /*
