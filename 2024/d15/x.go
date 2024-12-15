@@ -233,21 +233,14 @@ func blocksToMove(pos vec, m [][]byte, dir vec) []set[vec] {
 
 		switch m[r][c] {
 		case '[':
-			left, right := next, next.add(vec{0, 1})
-			nextLevel = append(nextLevel, []vec{left, right}...)
-
-			blockPositions[lvl][left] = true
-			blockPositions[lvl][right] = true
+			nextLevel = append(nextLevel, []vec{next, next.add(vec{0, 1})}...)
 		case ']':
-			left, right := next.add(vec{0, -1}), next
-			nextLevel = append(nextLevel, []vec{left, right}...)
-
-			blockPositions[lvl][left] = true
-			blockPositions[lvl][right] = true
+			nextLevel = append(nextLevel, []vec{next.add(vec{0, -1}), next}...)
 		}
 
-		for _, n := range nextLevel {
-			find(n, lvl+1)
+		for _, b := range nextLevel {
+			blockPositions[lvl][b] = true
+			find(b, lvl+1)
 		}
 	}
 
