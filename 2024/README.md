@@ -27,5 +27,5 @@ day 21
 day 22    37.21 ms  730.6 ms
 day 23
 day 24
-day 25
+day 25    0.639 ms  -
 ```
