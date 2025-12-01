@@ -1,7 +1,3 @@
-import sys
-
-sys.setrecursionlimit(10**6)
-
 INPUT = """"""  # test input
 INPUT = open("input.txt").read().strip()
 
@@ -33,18 +29,15 @@ def p2():
         o = l[0]
         n = int(l[1:])
         if o == "L":
-            for i in range(n):
+            for _ in range(n):
                 s = (s - 1) % 100
                 if s == 0:
                     r += 1
         else:
-            for i in range(n):
+            for _ in range(n):
                 s = (s + 1) % 100
                 if s == 0:
                     r += 1
-
-        # if s == 0:
-        #     r += 1
 
     return r
 
