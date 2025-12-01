@@ -1,19 +1,19 @@
 INPUT = """"""  # test input
 INPUT = open("input.txt").read().strip()
+LINES = INPUT.split("\n")
 
 
 def p1():
-    lines = INPUT.split("\n")
-
     s = 50
     r = 0
-    for l in lines:
+    for l in LINES:
         o = l[0]
         n = int(l[1:])
         if o == "L":
             s = (s - n) % 100
         else:
             s = (s + n) % 100
+
         if s == 0:
             r += 1
 
@@ -21,23 +21,25 @@ def p1():
 
 
 def p2():
-    lines = INPUT.split("\n")
-
     s = 50
     r = 0
-    for l in lines:
+    for l in LINES:
         o = l[0]
         n = int(l[1:])
         if o == "L":
-            for _ in range(n):
-                s = (s - 1) % 100
-                if s == 0:
-                    r += 1
+            [a, b] = divmod(s - n, 100)
+            if s == 0 and b > 0:
+                r += abs(a) - 1
+            elif s > 0 and b == 0:
+                r += abs(a) + 1
+            else:
+                r += abs(a)
+
+            s = b
         else:
-            for _ in range(n):
-                s = (s + 1) % 100
-                if s == 0:
-                    r += 1
+            [a, b] = divmod(s + n, 100)
+            r += a
+            s = b
 
     return r
 
