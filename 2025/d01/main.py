@@ -28,12 +28,11 @@ def p2():
         n = int(l[1:])
         if o == "L":
             [a, b] = divmod(s - n, 100)
+            r += abs(a)
             if s == 0 and b > 0:
-                r += abs(a) - 1
+                r -= 1
             elif s > 0 and b == 0:
-                r += abs(a) + 1
-            else:
-                r += abs(a)
+                r += 1
 
             s = b
         else:
