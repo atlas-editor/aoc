@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -27,13 +26,8 @@ func p(input string, N int) int {
 	lines := strings.Split(input, "\n")
 	ch := make(chan int, len(lines))
 	for _, line := range lines {
-		nums := []int{}
-		for _, c := range line {
-			nums = append(nums, int(c-48))
-		}
-
 		go func() {
-			ch <- f(nums, N)
+			ch <- f([]byte(line), N)
 		}()
 	}
 
@@ -44,14 +38,14 @@ func p(input string, N int) int {
 	return r
 }
 
-func f(nums []int, N int) int {
+func f(nums []byte, N int) int {
 	a := 0
 	b := len(nums) - (N - 1)
 
-	s := ""
-	for range N {
-		m := -1
-		newa := -1
+	s := 0
+	for i := range N {
+		m := byte(0)
+		newa := 0
 		for j, n := range nums {
 			if j < a || j >= b {
 				continue
@@ -61,20 +55,31 @@ func f(nums []int, N int) int {
 				newa = j + 1
 			}
 		}
-		s += strconv.Itoa(m)
+		x := int(m-48) * pow(10, N-(i+1))
+		s += x
 
 		a = newa
 		b += 1
 	}
 
-	return atoi(s)
+	return s
 }
 
 /*
  * utils
  */
 
-func atoi(s string) int {
-	r, _ := strconv.Atoi(s)
+func pow(base, exp int) int {
+	if exp < 0 {
+		panic("exp must be non-negative")
+	}
+	r := 1
+	for exp > 0 {
+		if exp&1 == 1 {
+			r *= base
+		}
+		base *= base
+		exp >>= 1
+	}
 	return r
 }
