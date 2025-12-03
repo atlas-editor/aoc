@@ -55,8 +55,7 @@ func f(nums []byte, N int) int {
 				newa = j + 1
 			}
 		}
-		x := int(m-48) * pow(10, N-(i+1))
-		s += x
+		s += int(m-48) * pow(10, N-(i+1))
 
 		a = newa
 		b += 1
