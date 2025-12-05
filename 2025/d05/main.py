@@ -42,7 +42,7 @@ def p2():
         a, b = r
         preva = a
         for p in pts:
-            if a <= p < b:
+            if a < p < b:
                 rr = (preva, p)
                 newr.add(rr)
                 preva = p
