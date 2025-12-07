@@ -1,4 +1,3 @@
-import time
 from functools import cache
 
 INPUT = open("input.txt").read().strip()
@@ -55,12 +54,5 @@ def p2():
 
 
 if __name__ == "__main__":
-    a = time.perf_counter()
     print(f"part1={p1()}")
-    b = time.perf_counter()
-    print("part1", b - a, "s\n")
-
-    a = time.perf_counter()
     print(f"part1={p2()}")
-    b = time.perf_counter()
-    print("part2", b - a, "s")
