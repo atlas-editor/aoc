@@ -5,15 +5,9 @@ M = INPUT.splitlines()
 R, C = len(M), len(M[0])
 
 
-def spos():
-    for i in range(C):
-        if M[0][i] == "S":
-            return i
-
-
 def p1():
     beampos = {}
-    beampos[0] = {spos()}
+    beampos[0] = {C // 2}
 
     splt = 0
     for i in range(1, R):
@@ -42,7 +36,7 @@ def p2():
         else:
             return f(r + 1, c)
 
-    return f(1, spos())
+    return f(1, C // 2)
 
 
 if __name__ == "__main__":
