@@ -6,3 +6,4 @@ target/
 *.txt
 leaderboard/
 recording/
+prepare.sh
