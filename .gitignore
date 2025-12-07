@@ -3,3 +3,6 @@
 inputs/
 target/
 **/__pycache__/
+*.txt
+leaderboard/
+recording/
